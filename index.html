@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice Trainers</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background:#1a1a2e; color:#e8e8f0; font-family:-apple-system,BlinkMacSystemFont,sans-serif; min-height:100vh; }
+  a { color: inherit; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 40px 20px 60px; }
+  .eyebrow { font-size:11px; color:#9090b0; text-transform:uppercase; letter-spacing:.12em; font-weight:600; margin-bottom:10px; }
+  h1 { font-size: 30px; font-weight: 800; margin-bottom: 8px; letter-spacing:-.01em; }
+  .sub { font-size: 14px; color:#a0a0c0; margin-bottom: 32px; max-width: 560px; line-height:1.5; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .card { display:flex; flex-direction:column; gap:12px; background:#252540; border:1px solid #404060; border-radius: 14px; padding: 22px; text-decoration:none; transition: border-color .15s ease, transform .15s ease, background .15s ease; }
+  .card:hover { border-color: #6360f0; background:#2a2a4d; transform: translateY(-2px); }
+  .icon { width: 48px; height: 48px; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-size: 24px; flex-shrink:0; }
+  .card h2 { font-size: 17px; font-weight: 700; margin: 0; }
+  .card p { font-size: 13px; color: #9090b0; line-height:1.5; margin:0; }
+  .tag-row { display:flex; gap:6px; flex-wrap:wrap; margin-top: 2px; }
+  .tag { font-size: 10px; font-weight:700; padding: 3px 8px; border-radius: 20px; text-transform:uppercase; letter-spacing:.05em; }
+  footer { margin-top: 44px; font-size: 12px; color: #60607a; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Practice Collection</div>
+  <h1>🎼 Practice Trainers</h1>
+  <div class="sub">Three independent practice suites, all single-file HTML apps with no build step. Pick one below.</div>
+
+  <div class="grid">
+
+    <a class="card" href="guitar/index.html">
+      <div class="icon" style="background:rgba(240,168,96,0.16);color:#f0a860">🎸</div>
+      <h2>Guitar Trainers</h2>
+      <p>Six trainers covering scales, arpeggios, inversions, style chords (with a Key/capo transposer and Roman numeral analysis), interval ear training, and sight reading.</p>
+      <div class="tag-row">
+        <span class="tag" style="background:rgba(240,168,96,0.16);color:#f0a860">Scales</span>
+        <span class="tag" style="background:rgba(240,168,96,0.16);color:#f0a860">Chords</span>
+        <span class="tag" style="background:rgba(240,168,96,0.16);color:#f0a860">Sight Reading</span>
+      </div>
+    </a>
+
+    <a class="card" href="piano/index.html">
+      <div class="icon" style="background:rgba(168,216,240,0.16);color:#a8d8f0">🎹</div>
+      <h2>Piano Trainers</h2>
+      <p>The same six-trainer set, rebuilt around a keyboard — including a Grand Staff sight-reading mode and inversion voicings shown directly on the keys.</p>
+      <div class="tag-row">
+        <span class="tag" style="background:rgba(168,216,240,0.16);color:#a8d8f0">Keyboard</span>
+        <span class="tag" style="background:rgba(168,216,240,0.16);color:#a8d8f0">Grand Staff</span>
+      </div>
+    </a>
+
+    <a class="card" href="drums/index.html">
+      <div class="icon" style="background:rgba(120,200,150,0.16);color:#78c896">🥁</div>
+      <h2>Drum Lexicon</h2>
+      <p>A searchable index, flashcard study mode, and quiz mode covering 35 drum arranging and songwriting terms — each with a procedurally synthesized audio example.</p>
+      <div class="tag-row">
+        <span class="tag" style="background:rgba(120,200,150,0.16);color:#78c896">Terminology</span>
+        <span class="tag" style="background:rgba(120,200,150,0.16);color:#78c896">Flashcards</span>
+      </div>
+    </a>
+
+  </div>
+
+  <footer>Single-file HTML tools — open any page directly, or navigate within each suite from its own top bar.</footer>
+</div>
+</body>
+</html>
