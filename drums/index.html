@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Drum Arranger & Songwriter Lexicon</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-bg: #252540;
+            --border-color: #404060;
+            --accent: #4f46e5;
+            --accent-hover: #6360f0;
+            --text-main: #e8e8f0;
+            --text-muted: #9090b0;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            width: 100%;
+            background: var(--bg-color);
+            border-bottom: 1px solid #2a2a45;
+            padding: 9px 14px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .topbar span.icon { font-size: 16px; line-height: 1; }
+        .topbar span.brand { font-weight: 700; font-size: 14px; color: var(--text-main); }
+
+        header {
+            text-align: center;
+            margin: 22px 0 20px 0;
+            padding: 0 20px;
+        }
+
+        h1 {
+            margin: 0 0 6px 0;
+            color: var(--text-main);
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 0 20px 30px 20px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent-hover);
+            font-weight: 700;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            height: 395px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .card-face.back {
+            transform: rotateY(180deg);
+            background-color: #20203a;
+            border-color: var(--accent);
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .card-content-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            width: 100%;
+        }
+
+        .card-face.back .card-content-center {
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .category-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(79, 70, 229, 0.16);
+            color: #a5b4fc;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .term {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .definition {
+            font-size: 0.8rem;
+            line-height: 1.35;
+            color: var(--text-main);
+            overflow-y: auto;
+            max-height: 245px;
+            width: 100%;
+            padding-right: 4px;
+        }
+
+        .definition strong {
+            color: #a5b4fc;
+        }
+
+        .hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .audio-btn {
+            background-color: #166534;
+            color: #ffffff;
+            border: 1px solid #22c55e;
+            padding: 6px 14px;
+            border-radius: 7px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s, transform 0.1s;
+            z-index: 10;
+            font-family: inherit;
+        }
+
+        .audio-btn:hover { background-color: #1a7a3f; }
+        .audio-btn:active { transform: scale(0.95); }
+        .audio-btn.playing { background-color: #7f1d1d; border-color: var(--danger); color: #fff; animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .action-btn {
+            flex: 1;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 7px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover { background-color: #2e2e50; }
+
+        .counter {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .quiz-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .quiz-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 7px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .btn-wrong { background-color: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid var(--danger); }
+        .btn-correct { background-color: rgba(34, 197, 94, 0.16); color: #4ade80; border: 1px solid var(--success); }
+        .quiz-btn:hover { opacity: 0.8; }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 7px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        /* Index Table Styles */
+        .table-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 14px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-family: inherit;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .table-container {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background-color: #20203a;
+            color: #a5b4fc;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+            color: var(--text-main);
+        }
+
+        tr:hover td {
+            background-color: rgba(79, 70, 229, 0.06);
+        }
+        
+        #audio-gate {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(26, 26, 46, 0.96); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 2000; text-align: center; padding: 20px;
+        }
+        #audio-gate h2 { color: var(--text-main); margin-bottom: 10px; font-size: 1.3rem; }
+        #audio-gate p { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
+        #audio-gate button {
+            background-color: #166534; color: #ffffff; border: 1px solid #22c55e;
+            padding: 12px 28px; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer;
+            font-family: inherit;
+        }
+        #audio-gate button:hover { background-color: #1a7a3f; }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <span class="icon">🥁</span><span class="brand">Drum Lexicon</span>
+    </div>
+
+    <div id="audio-gate">
+        <h2>Pro Drum Arranger's Lexicon</h2>
+        <p>Click below to unlock high-definition procedural acoustic drum synthesis.</p>
+        <button onclick="unlockAudioEngine()">Start App & Enable Audio</button>
+    </div>
+
+    <header>
+        <h1>Pro Drum Arranger's Lexicon</h1>
+        <p class="subtitle">Kit Anatomy, Songwriting Cues, & Groove Mechanics</p>
+    </header>
+
+
+    <div class="container">
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('index')">Index Table</button>
+            <button class="tab-btn" onclick="switchTab('study')">Study Mode</button>
+            <button class="tab-btn" onclick="switchTab('quiz')">Quiz Mode</button>
+        </div>
+
+        <!-- Index Table Section (Default Landing) -->
+        <div id="index-view" class="view-section active">
+            <div class="table-card">
+                <input type="text" id="table-search" class="search-box" placeholder="Search terms, categories, or theory..." oninput="filterIndexTable()">
+                <div class="table-container">
+                    <table id="lexicon-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 26%;">Term</th>
+                                <th style="width: 22%;">Category</th>
+                                <th>Theory & Arrangement Value</th>
+                                <th style="width: 15%; text-align: center;">Audio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Study Section -->
+        <div id="study-view" class="view-section">
+            <div class="counter" id="study-counter">Card 1 of X</div>
+            <div class="flashcard-container" onclick="handleCardClick(event, 'study')">
+                <div class="flashcard" id="study-card">
+                    <div class="card-face front">
+                        <span class="category-tag" id="study-category">Category</span>
+                        <div class="card-content-center">
+                            <div class="term" id="study-term">Term</div>
+                            <div class="hint">Click card to flip • Use button to toggle audio loop</div>
+                        </div>
+                        <button class="audio-btn" id="study-audio-btn" onclick="toggleAudioLoop(event, 'study')">🔊 Toggle Loop</button>
+                    </div>
+                    <div class="card-face back">
+                        <span class="category-tag">Theory, Mechanics & Arrangement</span>
+                        <div class="card-content-center">
+                            <div class="definition" id="study-def">Definition here...</div>
+                        </div>
+                        <button class="audio-btn" id="study-audio-btn-back" onclick="toggleAudioLoop(event, 'study')">🔊 Toggle Loop</button>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="action-btn" onclick="prevCard()">← Previous</button>
+                <button class="action-btn" onclick="nextCard()">Next →</button>
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz-view" class="view-section">
+            <div class="score-board">
+                <span style="color: var(--success);">Correct: <span id="quiz-correct">0</span></span>
+                <span style="color: var(--danger);">Incorrect: <span id="quiz-incorrect">0</span></span>
+            </div>
+            <div class="flashcard-container" onclick="handleCardClick(event, 'quiz')">
+                <div class="flashcard" id="quiz-card">
+                    <div class="card-face front">
+                        <span class="category-tag" id="quiz-category">Category</span>
+                        <div class="card-content-center">
+                            <div class="term" id="quiz-term">Term</div>
+                            <div class="hint">Tap card to flip for definition</div>
+                        </div>
+                        <button class="audio-btn" id="quiz-audio-btn" onclick="toggleAudioLoop(event, 'quiz')">🔊 Toggle Loop</button>
+                    </div>
+                    <div class="card-face back">
+                        <span class="category-tag">Theory & Mechanics</span>
+                        <div class="card-content-center">
+                            <div class="definition" id="quiz-def">Definition here...</div>
+                        </div>
+                        <button class="audio-btn" id="quiz-audio-btn-back" onclick="toggleAudioLoop(event, 'quiz')">🔊 Toggle Loop</button>
+                    </div>
+                </div>
+            </div>
+            <div class="quiz-buttons" id="quiz-action-buttons" style="display: none;">
+                <button class="quiz-btn btn-wrong" onclick="answerQuiz(false)">Review Again</button>
+                <button class="quiz-btn btn-correct" onclick="answerQuiz(true)">Nailed It</button>
+            </div>
+            <div id="quiz-start-prompt" style="text-align: center;">
+                <button class="action-btn" style="background-color: var(--accent); color: #ffffff; border-color: var(--accent-hover); font-weight: 700;" onclick="revealQuizCard()">Show Mechanics</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const drumTerms = [
+            { id: "downbeat", term: "Downbeat & Upbeat", category: "Rhythmic Lingo", def: "<strong>What it means:</strong> The fundamental split of musical time. The downbeat is the primary pulse (beats 1 and 3 in 4/4 time); the upbeat is the intermediate subdivision falling in between (the 'ands').<br><br><strong>Metric Theory:</strong> Downbeats carry maximum gravitational metric weight and anchor the structural grid. Upbeats create motion and lift, pulling the ear toward the next heavy downbeat." },
+            { id: "backbeat", term: "Backbeat", category: "Rhythmic Lingo", def: "<strong>What it means:</strong> Accenting the secondary beats of a measure—specifically beats 2 and 4 in 4/4 time—typically anchored by the snare drum.<br><br><strong>Metric Theory:</strong> Shifts physical release away from the mathematical downbeat (beat 1). This delayed grounding gives rock, pop, and dance music its forward-driving head-nodding bounce." },
+            { id: "syncopation", term: "Syncopation & Off-Beats", category: "Rhythmic Lingo", def: "<strong>What it means:</strong> Deliberately placing accents or hits on weak subdivisions (off-beats) where the listener expects silence or a softer touch.<br><br><strong>Metric Theory:</strong> Creates rhythmic surprise and psychological tension by subverting expected metrical expectations before resolving back to the downbeat." },
+            { id: "pocket", term: "The Pocket / Time Feel", category: "Rhythmic Lingo", def: "<strong>What it means:</strong> The elusive sense of a groove sitting exactly where it should relative to the underlying pulse — not rushing, not dragging, just locked. Often described as being 'in the pocket.'<br><br><strong>Metric Theory:</strong> Micro-timing deviations of only a few milliseconds around the metric grid separate a stiff, machine-quantized feel from a human pocket. Slightly behind the beat reads as relaxed; slightly ahead reads as urgent." },
+            { id: "timefeel", term: "Ahead / Behind the Beat", category: "Rhythmic Lingo", def: "<strong>What it means:</strong> Deliberately placing notes a hair before (ahead, 'on top of') or after (behind, 'laid back') the exact metronomic grid point, without changing the notated rhythm.<br><br><strong>Metric Theory:</strong> These are sub-perceptual-threshold timing offsets, often under 30 milliseconds — too small to read as a tempo change, but large enough to shift the emotional character of an identical rhythmic pattern from urgent to relaxed." },
+            { id: "rudiments", term: "Rudiments: Paradiddle & Flam", category: "Rhythmic Lingo", def: "<strong>What it means:</strong> The alphabet of drumming — standardized sticking patterns like the paradiddle (RLRR LRLL) and the flam (a soft grace note struck just before the main note) that build hand independence and articulation.<br><br><strong>Metric Theory:</strong> Rudiments are sticking-pattern building blocks, not rhythms themselves — the same paradiddle can be voiced across snare, toms, and cymbals to generate melodic movement around the kit while the underlying pulse stays identical." },
+            { id: "polymeter", term: "Polymeter vs. Polyrhythm", category: "Rhythmic Lingo", def: "<strong>What it means:</strong> A polyrhythm layers two different subdivisions over the <em>same</em> bar length (3 against 4 within one measure). A polymeter layers two different bar <em>lengths</em> that share the same pulse, so their downbeats drift apart and only realign after several cycles.<br><br><strong>Metric Theory:</strong> A polyrhythm resolves within a single measure; a polymeter's phrases only line back up once their lengths reach a common multiple (e.g., a 3-beat riff over a 4-beat groove realigns every 12 beats), creating a slow-motion phasing effect." },
+            { id: "unison", term: "Unison Hits / Ensemble Cuts", category: "Songwriting Cues", def: "<strong>What it means:</strong> Directing the drummer to lock completely with guitar/bass riffs on specific accents.<br><br><strong>Metric Theory:</strong> Accents fall directly on strong beats ($1$ and $3$) or downbeats to maximize physical punctuation. By stripping away surrounding notes, the ensemble hit magnifies the psychological impact of the chord change." },
+            { id: "push", term: "The Push / Anticipation", category: "Songwriting Cues", def: "<strong>What it means:</strong> Landing a beat or chord slightly ahead of the downbeat (typically on the 'and' of beat 4 instead of beat 1).<br><br><strong>Metric Theory:</strong> Exploits syncopation by shifting accent weight from a stable metric pulse to a weak subdivision. This unresolved tension forces forward momentum into the subsequent measure's downbeat." },
+            { id: "drop", term: "Drop Out / Breakdown", category: "Songwriting Cues", def: "<strong>What it means:</strong> The drummer completely silences the kit or strips back to a bare pulse for structural contrast.<br><br><strong>Metric Theory:</strong> Leverages psychoacoustic contrast. Removing rhythmic density resets listener fatigue, making the eventual re-entry of full meter feel twice as explosive." },
+            { id: "comping", term: "Drum Comping / Conversational", category: "Songwriting Cues", def: "<strong>What it means:</strong> Spontaneous, rhythmic ear-responding where the drummer answers phrases with ghost notes and rim clicks.<br><br><strong>Metric Theory:</strong> Operates in the spaces between primary metrical pulses (backbeats and downbeats), creating polyphonic dialogue without disrupting the underlying time signature." },
+            { id: "metric", term: "Metric Modulation / Tempo Illusion", category: "Songwriting Cues", def: "<strong>What it means:</strong> Shifting the subdivision or perceived tempo while keeping the underlying pulse mathematically linked.<br><br><strong>Metric Theory:</strong> Reinterprets a common partial value (e.g., turning triplets into eighth notes) to trick the ear into feeling a sudden acceleration or deceleration without altering the master click." },
+            { id: "fill", term: "The Drum Fill", category: "Songwriting Cues", def: "<strong>What it means:</strong> A short rhythmic flourish, usually one or two beats long, that fills the space at the end of a phrase and signals a structural change — verse to chorus, chorus to bridge.<br><br><strong>Metric Theory:</strong> Fills work by temporarily abandoning the steady backbeat, building tension through increased note density or descending toms, then resolving hard on the downbeat of the new section — that landed downbeat is what makes the arrival feel confirmed." },
+            { id: "halftime", term: "Half-Time & Double-Time Feel", category: "Songwriting Cues", def: "<strong>What it means:</strong> Reinterpreting the backbeat's placement without changing the tempo — half-time moves the snare from beats 2 and 4 to beat 3 only, doubling the perceived bar length; double-time compresses it, making the groove feel twice as fast.<br><br><strong>Metric Theory:</strong> The underlying click never changes — only where the ear anchors the 'strong' backbeat. This is why a chorus can suddenly feel massive or urgent without the tempo marking moving at all." },
+            { id: "crescendo", term: "Dynamic Build / Crescendo Ride", category: "Songwriting Cues", def: "<strong>What it means:</strong> Gradually increasing volume and often note density — typically via a ride or crash cymbal swell — leading into a new section, telegraphing an arrival before it happens.<br><br><strong>Acoustic Theory:</strong> A slow rise in perceived loudness primes the ear's expectation of a peak; when the new section lands at a sharply higher dynamic than the build's endpoint, the contrast reads as far bigger than the actual decibel jump alone would produce." },
+            { id: "hatride", term: "Hi-Hat to Ride Lift", category: "Songwriting Cues", def: "<strong>What it means:</strong> Switching the timekeeping surface from a tight, closed hi-hat to an open, washier ride cymbal — one of the most common cues for lifting energy from verse into chorus.<br><br><strong>Acoustic Theory:</strong> Hi-hats are heavily damped, producing a short, controlled transient; a ride cymbal's longer sustain and complex overtone spread fills more of the frequency spectrum continuously, which reads as a wash of added energy even at an identical hit velocity." },
+            { id: "bearing", term: "Bearing Edge & Shell Resonance", category: "Kit Anatomy", def: "<strong>Mechanics:</strong> The precision-cut rim of the shell where the head rests. Determines fundamental pitch and sustain.<br><br><strong>Acoustic Theory:</strong> A 45-degree bearing edge yields sharper high-overtone transmission and faster decay; rounded edges trap vibrations in the wood grain for warmer, sustained fundamental resonances." },
+            { id: "lugs", term: "Lugs, Tension Rods & Tuning", category: "Kit Anatomy", def: "<strong>Mechanics:</strong> The metal hardware and bolts clamping the hoop to control head tension.<br><br><strong>Acoustic Theory:</strong> Equalizing tension distribution across lugs eliminates phase cancellation and wolf tones, ensuring the drum's harmonic partials ring true to a defined fundamental frequency." },
+            { id: "throwoff", term: "Snare Throw-Off & Wires", category: "Kit Anatomy", def: "<strong>Mechanics:</strong> The lever mechanism engaging or disengaging wire strands against the bottom head.<br><br><strong>Acoustic Theory:</strong> Engaging wires couples the bottom resonant head with metal vibration, converting clean tonal sine waves into noisy white-frequency transients ideal for high backbeat cut." },
+            { id: "clutch", term: "Hi-Hat Clutch & Open/Closed Control", category: "Kit Anatomy", def: "<strong>Mechanics:</strong> The locking mechanism holding the top hi-hat cymbal to the pull-rod, regulated via foot pedal.<br><br><strong>Acoustic Theory:</strong> Foot pressure alters air gaps between brass plates. Complete closure creates a short, high-frequency transient 'chick'; loosening creates a continuous wash of chaotic white noise." },
+            { id: "rim", term: "Cross-Stick vs. Rimshot", category: "Kit Anatomy", def: "<strong>Mechanics:</strong> Cross-stick lays the stick across the head striking the rim; rimshot strikes head and rim simultaneously.<br><br><strong>Acoustic Theory:</strong> Cross-stick isolates a sharp wood fundamental; rimshots combine head tension with rim harmonic reinforcement, multiplying decibel output and shifting frequency spectra upward." },
+            { id: "ride", term: "Ride Cymbal: Bell, Bow & Edge", category: "Kit Anatomy", def: "<strong>Mechanics:</strong> Three distinct striking zones on one cymbal — the raised center bell, the flat bow, and the outer edge — each producing a different timbre from the same piece of metal.<br><br><strong>Acoustic Theory:</strong> The bell's thick, concentrated mass isolates a high, pingy fundamental with fast decay; the bow generates a balanced wash of overtones; the thin edge flexes most freely, producing the longest sustain and darkest, trashiest overtone spread." },
+            { id: "kickanatomy", term: "Kick Drum: Beater, Port & Muffling", category: "Kit Anatomy", def: "<strong>Mechanics:</strong> The beater head (felt vs. plastic), an optional port hole cut into the resonant head, and internal muffling (pillows, blankets) all shape the kick's attack-to-body ratio independently.<br><br><strong>Acoustic Theory:</strong> A port hole vents internal air pressure, tightening low-end decay and letting a microphone near the hole capture more high-frequency beater click; heavier muffling shortens sustain further, trading resonant boom for a controlled, mix-ready thump." },
+            { id: "doublebass", term: "Double Bass / Double Pedal", category: "Kit Anatomy", def: "<strong>Mechanics:</strong> Either a second kick drum, or a double pedal mechanism linking two beaters to a single kick, letting the right and left feet alternate rapid low-end strokes.<br><br><strong>Metric Theory:</strong> Enables continuous sixteenth or thirty-second-note pulses on the kick without the single-beater rebound limit, extending rhythmic density into the low-frequency register where a hand-played limb normally can't keep pace." },
+            { id: "brushes", term: "Brushes vs. Sticks", category: "Kit Anatomy", def: "<strong>Mechanics:</strong> Wire or nylon brushes replace wooden sticks for a softer attack — either swept in circular patterns across the snare head or lifted for a light tap.<br><br><strong>Acoustic Theory:</strong> Brushes make contact across many thin wires instead of one dense tip, distributing transient energy over a longer, quieter envelope — trading the stick's sharp high-frequency crack for a low-level, sustained texture suited to ballads and acoustic arrangements." },
+            { id: "linear", term: "Linear Grooves", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> Strict single-note orchestration where no two limbs strike a surface simultaneously.<br><br><strong>Metric Theory:</strong> Distributes rhythmic density evenly across sixteenth-note subdivisions, generating hyper-percussive complexity without sonic crowding or phase masking." },
+            { id: "ghost", term: "Ghost Notes", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> Unaccented, micro-volume strokes played on the snare between primary backbeat hits.<br><br><strong>Metric Theory:</strong> Fills the silent micro-intervals between downbeats and backbeats, generating internal momentum and swing feel without stealing dynamic headroom from primary accents." },
+            { id: "shuffled", term: "Triplet / Purdie Shuffle", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> Subdividing time into rolling triplets with delayed middle beats and ghosted textures.<br><br><strong>Metric Theory:</strong> Replaces straight binary $1/8$ divisions with ternary swing ratios ($2:1$), creating an elastic push-and-pull feel that loosens rigid grid alignment." },
+            { id: "four", term: "Four on the Floor", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> A steady kick drum pulse on every single quarter note ($1, 2, 3, 4$).<br><br><strong>Metric Theory:</strong> Maximizes metrical stability by anchoring every primary beat of the 4/4 bar. This absolute grid predictability drives high-energy dance and rock tracks forward." },
+            { id: "bossa", term: "Latin Foot Independence / Bossa", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> Independent syncopated foot patterns playing against contrasting hand rhythms.<br><br><strong>Metric Theory:</strong> Combines a steady binary hand pulse with a syncopated foot timeline ($1$, and-of-$2$, and-of-$3$). This cross-rhythmic layer produces an airy, floating feel over a fixed 4/4 bar." },
+            { id: "twostep", term: "Two-Step / Broken Beat", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> Displaced kick and snare placement utilizing heavy syncopation off the main grid.<br><br><strong>Metric Theory:</strong> Keeps solid backbeats anchored on strong beats 2 and 4, but strips downbeats and relocates kicks to weak sixteenth subdivisions ($1.5$ and $3.5$, or the 'and' of 2 and 4). This avoids the heavy four-on-the-floor stamp, creating a skipping, floating syncopation." },
+            { id: "washy", term: "Washy Crash Riding", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> Riding continuously on loose, thin crash cymbals instead of a defined ride bell.<br><br><strong>Acoustic Theory:</strong> Floods the high-frequency spectrum ($5\text{kHz}$ to $15\text{kHz}$) with continuous white noise, gluing disparate arrangement elements together into a dense wall of sound." },
+            { id: "stack", term: "Stack / Trash Accents", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> Mounted, warped cymbals creating a dry, white-noise chokable transient.<br><br><strong>Acoustic Theory:</strong> Dampened high-mass contact suppresses sustained harmonic rings, yielding an ultra-fast envelope decay that cuts through dense mixes without lingering." },
+            { id: "floor", term: "Floor Tom Anchor", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> Shifting the core rhythmic weight or groove pulse down to the floor tom.<br><br><strong>Acoustic Theory:</strong> Low-frequency fundamental tracking ($80\text{Hz} - 120\text{Hz}$) maximizes physical chest impact, immediately darkening emotional tone and building heavy structural tension." },
+            { id: "poly", term: "Polyrhythmic Fills", category: "Grooves & Limbs", def: "<strong>Mechanics:</strong> Superimposing odd groupings (like 3 against 4) across bar lines during transitions.<br><br><strong>Metric Theory:</strong> Imposes a secondary time division over the master bar grid, causing deliberate rhythmic ambiguity that resolves satisfyingly on the next structural downbeat." }
+        ];
+
+        let currentStudyIndex = 0;
+        let isStudyFlipped = false;
+        let quizDeck = [...drumTerms];
+        let currentQuizCard = null;
+        let quizCorrectCount = 0;
+        let quizIncorrectCount = 0;
+        let isQuizFlipped = false;
+
+        let audioCtx = null;
+        let activeLoopTimer = null;
+        let activeLoopCardId = null;
+
+        function playAcousticHit(ctx, instrument, time, options = {}) {
+            let vol = options.volume !== undefined ? options.volume : 1.0;
+            let pitch = options.pitch !== undefined ? options.pitch : 1.0;
+
+            if (instrument === 'kick') {
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(130 * pitch, time);
+                osc.frequency.exponentialRampYToValueAtTime ? osc.frequency.exponentialRampToValueAtTime(42, time + 0.15) : osc.frequency.linearRampToValueAtTime(42, time + 0.15);
+                gain.gain.setValueAtTime(1.5 * vol, time);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+                osc.start(time); osc.stop(time + 0.3);
+            } 
+            else if (instrument === 'snare') {
+                let osc = ctx.createOscillator();
+                let oscGain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.connect(oscGain); oscGain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(210 * pitch, time);
+                osc.frequency.exponentialRampToValueAtTime(100, time + 0.08);
+                oscGain.gain.setValueAtTime(0.8 * vol, time);
+                oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+                osc.start(time); osc.stop(time + 0.12);
+
+                let bufferSize = ctx.sampleRate * 0.18;
+                let buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                let data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                let noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+                let filter = ctx.createBiquadFilter();
+                filter.type = 'highpass'; filter.frequency.value = 1000;
+                let noiseGain = ctx.createGain();
+                noiseGain.gain.setValueAtTime(0.7 * vol, time);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+                noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(ctx.destination);
+                noise.start(time);
+            } 
+            else if (instrument === 'hihat' || instrument === 'openhat') {
+                let dur = instrument === 'openhat' ? 0.35 : 0.06;
+                let bufferSize = ctx.sampleRate * dur;
+                let buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                let data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                let noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+                let filter = ctx.createBiquadFilter();
+                filter.type = 'highpass'; filter.frequency.value = 6500;
+                let noiseGain = ctx.createGain();
+                noiseGain.gain.setValueAtTime((instrument === 'openhat' ? 0.4 : 0.25) * vol, time);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+                noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(ctx.destination);
+                noise.start(time);
+            } 
+            else if (instrument === 'tom') {
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(140 * pitch, time);
+                osc.frequency.exponentialRampToValueAtTime(70, time + 0.25);
+                gain.gain.setValueAtTime(1.1 * vol, time);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+                osc.start(time); osc.stop(time + 0.3);
+            } 
+            else if (instrument === 'rim') {
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.type = 'square';
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(920 * pitch, time);
+                gain.gain.setValueAtTime(0.4 * vol, time);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
+                osc.start(time); osc.stop(time + 0.03);
+            }
+        }
+
+        function unlockAudioEngine() {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContextClass();
+            audioCtx.resume();
+            
+            let osc = audioCtx.createOscillator();
+            let g = audioCtx.createGain();
+            g.gain.value = 0.0001;
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+
+            document.getElementById('audio-gate').style.opacity = '0';
+            setTimeout(() => document.getElementById('audio-gate').remove(), 400);
+        }
+
+        function schedulePattern(ctx, termId, startTime) {
+            let beat = 0.5; // quarter note duration at 120 BPM
+
+            switch(termId) {
+                // RHYTHMIC LINGO
+                case 'downbeat':
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'openhat', startTime, { volume: 0.8 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 0.5, { volume: 0.6 });
+                    playAcousticHit(ctx, 'snare', startTime + beat);
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 1.5, { volume: 0.6 });
+                    break;
+                case 'backbeat':
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'snare', startTime + beat); // Beat 2
+                    playAcousticHit(ctx, 'kick', startTime + beat * 2);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 3); // Beat 4
+                    break;
+                case 'syncopation':
+                    playAcousticHit(ctx, 'hihat', startTime);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 0.75, { volume: 0.7 }); // Off-beat 1.75
+                    playAcousticHit(ctx, 'kick', startTime + beat * 1.5); // Off-beat 2.5
+                    playAcousticHit(ctx, 'openhat', startTime + beat * 2.25);
+                    break;
+                case 'pocket':
+                    playAcousticHit(ctx, 'hihat', startTime);
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 0.5);
+                    playAcousticHit(ctx, 'snare', startTime + beat);
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 1.5);
+                    playAcousticHit(ctx, 'kick', startTime + beat * 2);
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 2.5);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 3);
+                    break;
+                case 'timefeel':
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'snare', startTime + beat - 0.03, { volume: 0.9 }); // ahead of the beat
+                    playAcousticHit(ctx, 'kick', startTime + beat * 2);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 3 + 0.04, { volume: 0.9 }); // behind the beat
+                    break;
+                case 'rudiments':
+                    playAcousticHit(ctx, 'rim', startTime, { volume: 0.5 });
+                    playAcousticHit(ctx, 'rim', startTime + 0.02, { volume: 1.0 }); // flam
+                    playAcousticHit(ctx, 'rim', startTime + beat * 0.5, { volume: 0.9 });
+                    playAcousticHit(ctx, 'rim', startTime + beat * 0.75, { volume: 0.9 });
+                    playAcousticHit(ctx, 'rim', startTime + beat, { volume: 0.9 });
+                    break;
+                case 'polymeter':
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'snare', startTime + beat);
+                    playAcousticHit(ctx, 'kick', startTime + beat * 2);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 3);
+                    playAcousticHit(ctx, 'tom', startTime, { pitch: 1.1, volume: 0.7 });
+                    playAcousticHit(ctx, 'tom', startTime + beat * 1.33, { pitch: 1.1, volume: 0.7 });
+                    playAcousticHit(ctx, 'tom', startTime + beat * 2.66, { pitch: 1.1, volume: 0.7 });
+                    break;
+
+                // SONGWRITING CUES
+                case 'unison':
+                    playAcousticHit(ctx, 'kick', startTime); 
+                    playAcousticHit(ctx, 'snare', startTime); 
+                    playAcousticHit(ctx, 'openhat', startTime, { volume: 0.8 });
+                    break;
+                case 'push':
+                    playAcousticHit(ctx, 'kick', startTime); 
+                    playAcousticHit(ctx, 'hihat', startTime);
+                    playAcousticHit(ctx, 'kick', startTime + beat * 1.75); 
+                    playAcousticHit(ctx, 'snare', startTime + beat * 2);
+                    break;
+                case 'drop':
+                    playAcousticHit(ctx, 'openhat', startTime, { volume: 0.6 });
+                    playAcousticHit(ctx, 'kick', startTime + beat * 2);
+                    break;
+                case 'comping':
+                    playAcousticHit(ctx, 'snare', startTime + beat * 0.25, { volume: 0.25 }); 
+                    playAcousticHit(ctx, 'rim', startTime + beat * 0.75, { volume: 0.6 });
+                    playAcousticHit(ctx, 'kick', startTime + beat, { volume: 0.8 });
+                    playAcousticHit(ctx, 'snare', startTime + beat * 1.5, { volume: 0.3 });
+                    break;
+                case 'metric':
+                    for(let i=0; i<4; i++) {
+                        playAcousticHit(ctx, i%2===0 ? 'hihat' : 'openhat', startTime + (i * 0.25));
+                        if(i===0 || i===3) playAcousticHit(ctx, 'tom', startTime + (i * 0.25), { pitch: 1.2 });
+                    }
+                    break;
+                case 'fill':
+                    playAcousticHit(ctx, 'tom', startTime, { pitch: 1.3, volume: 1.1 });
+                    playAcousticHit(ctx, 'tom', startTime + beat * 0.5, { pitch: 1.0, volume: 1.1 });
+                    playAcousticHit(ctx, 'tom', startTime + beat, { pitch: 0.7, volume: 1.2 });
+                    playAcousticHit(ctx, 'kick', startTime + beat * 1.5);
+                    playAcousticHit(ctx, 'openhat', startTime + beat * 1.5, { volume: 1.0 });
+                    break;
+                case 'halftime':
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'hihat', startTime + beat);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 2, { volume: 1.1 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 3);
+                    break;
+                case 'crescendo':
+                    playAcousticHit(ctx, 'hihat', startTime, { volume: 0.3 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 0.5, { volume: 0.5 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat, { volume: 0.7 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 1.5, { volume: 0.9 });
+                    playAcousticHit(ctx, 'openhat', startTime + beat * 2, { volume: 1.0 });
+                    playAcousticHit(ctx, 'kick', startTime + beat * 2);
+                    break;
+                case 'hatride':
+                    playAcousticHit(ctx, 'hihat', startTime, { volume: 0.6 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 0.5, { volume: 0.6 });
+                    playAcousticHit(ctx, 'kick', startTime + beat);
+                    playAcousticHit(ctx, 'openhat', startTime + beat, { volume: 0.9 });
+                    playAcousticHit(ctx, 'openhat', startTime + beat * 1.5, { volume: 0.9 });
+                    playAcousticHit(ctx, 'snare', startTime + beat * 2);
+                    break;
+
+                // KIT ANATOMY
+                case 'bearing':
+                    playAcousticHit(ctx, 'tom', startTime, { pitch: 0.65, volume: 1.3 });
+                    playAcousticHit(ctx, 'tom', startTime + beat, { pitch: 0.8, volume: 1.1 });
+                    break;
+                case 'lugs':
+                    playAcousticHit(ctx, 'snare', startTime, { pitch: 1.35, volume: 1.0 });
+                    playAcousticHit(ctx, 'rim', startTime + 0.15, { pitch: 1.2, volume: 0.9 });
+                    break;
+                case 'throwoff':
+                    playAcousticHit(ctx, 'rim', startTime, { volume: 0.7 }); 
+                    setTimeout(() => playAcousticHit(ctx, 'snare', startTime + 0.2, { volume: 0.9 }), 200);
+                    break;
+                case 'clutch':
+                    playAcousticHit(ctx, 'openhat', startTime, { volume: 0.8 });
+                    playAcousticHit(ctx, 'hihat', startTime + 0.15, { volume: 0.9 });
+                    playAcousticHit(ctx, 'openhat', startTime + beat, { volume: 0.8 });
+                    break;
+                case 'rim':
+                    playAcousticHit(ctx, 'rim', startTime, { volume: 1.0 });
+                    playAcousticHit(ctx, 'rim', startTime + beat, { volume: 1.0 });
+                    break;
+                case 'ride':
+                    playAcousticHit(ctx, 'rim', startTime, { pitch: 1.6, volume: 0.9 }); // bell
+                    playAcousticHit(ctx, 'openhat', startTime + beat, { volume: 0.6 }); // bow
+                    playAcousticHit(ctx, 'openhat', startTime + beat * 2, { volume: 1.0 }); // edge
+                    break;
+                case 'kickanatomy':
+                    playAcousticHit(ctx, 'kick', startTime, { pitch: 1.2, volume: 1.0 });
+                    playAcousticHit(ctx, 'kick', startTime + beat * 1.2, { pitch: 0.8, volume: 1.3 });
+                    break;
+                case 'doublebass':
+                    for(let i=0; i<8; i++) playAcousticHit(ctx, 'kick', startTime + i * (beat * 0.25), { volume: i%2===0 ? 1.0 : 0.85 });
+                    break;
+                case 'brushes':
+                    playAcousticHit(ctx, 'snare', startTime, { volume: 0.25 });
+                    playAcousticHit(ctx, 'snare', startTime + beat * 0.5, { volume: 0.2 });
+                    playAcousticHit(ctx, 'snare', startTime + beat, { volume: 0.3 });
+                    playAcousticHit(ctx, 'snare', startTime + beat * 1.5, { volume: 0.2 });
+                    break;
+
+                // GROOVES & LIMBS
+                case 'four':
+                    for(let i=0; i<4; i++) {
+                        let t = startTime + (i * beat);
+                        playAcousticHit(ctx, 'kick', t); 
+                        playAcousticHit(ctx, 'openhat', t, { volume: 0.65 });
+                        if (i % 2 === 1) playAcousticHit(ctx, 'snare', t);
+                    }
+                    break;
+                case 'bossa':
+                    for(let i=0; i<8; i++) {
+                        playAcousticHit(ctx, 'hihat', startTime + (i * (beat * 0.5)), { volume: 0.4 });
+                    }
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'kick', startTime + beat * 1.5);
+                    playAcousticHit(ctx, 'kick', startTime + beat * 2.5);
+                    playAcousticHit(ctx, 'rim', startTime + beat * 2.0, { volume: 0.7 });
+                    break;
+                case 'linear':
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 0.33);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 0.66);
+                    playAcousticHit(ctx, 'tom', startTime + beat);
+                    playAcousticHit(ctx, 'kick', startTime + beat * 1.5);
+                    break;
+                case 'ghost':
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 0.25, { volume: 0.2 }); 
+                    playAcousticHit(ctx, 'snare', startTime + beat * 0.75, { volume: 0.25 });  
+                    playAcousticHit(ctx, 'snare', startTime + beat, { volume: 1.0 });          
+                    playAcousticHit(ctx, 'kick', startTime + beat * 1.5);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 1.75, { volume: 0.2 });
+                    break;
+                case 'shuffled':
+                    let t = beat / 3;
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'hihat', startTime);
+                    playAcousticHit(ctx, 'snare', startTime + t, { volume: 0.2 });
+                    playAcousticHit(ctx, 'hihat', startTime + t * 2);
+                    
+                    playAcousticHit(ctx, 'snare', startTime + beat, { volume: 1.0 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat);
+                    playAcousticHit(ctx, 'snare', startTime + beat + t, { volume: 0.2 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat + t * 2);
+                    
+                    playAcousticHit(ctx, 'kick', startTime + beat * 2);
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 2);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 2 + t, { volume: 0.2 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 2 + t * 2);
+                    
+                    playAcousticHit(ctx, 'snare', startTime + beat * 3, { volume: 1.0 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 3);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 3 + t, { volume: 0.2 });
+                    playAcousticHit(ctx, 'hihat', startTime + beat * 3 + t * 2);
+                    break;
+                case 'twostep':
+                    playAcousticHit(ctx, 'hihat', startTime);
+                    playAcousticHit(ctx, 'openhat', startTime + beat * 0.75, { volume: 0.7 });
+                    playAcousticHit(ctx, 'snare', startTime + beat);
+                    playAcousticHit(ctx, 'kick', startTime + beat * 1.5);
+                    playAcousticHit(ctx, 'openhat', startTime + beat * 2.0, { volume: 0.6 });
+                    playAcousticHit(ctx, 'snare', startTime + beat * 3.0);
+                    playAcousticHit(ctx, 'kick', startTime + beat * 3.5);
+                    break;
+                case 'washy':
+                    for(let i=0; i<4; i++) playAcousticHit(ctx, 'openhat', startTime + (i * beat), { volume: 0.75 });
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'snare', startTime + beat);
+                    playAcousticHit(ctx, 'kick', startTime + beat * 2);
+                    break;
+                case 'stack':
+                    playAcousticHit(ctx, 'snare', startTime, { pitch: 1.4, volume: 0.85 });
+                    playAcousticHit(ctx, 'openhat', startTime + beat * 0.5, { volume: 0.6 });
+                    playAcousticHit(ctx, 'kick', startTime + beat);
+                    break;
+                case 'floor':
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'snare', startTime + beat);
+                    playAcousticHit(ctx, 'tom', startTime + beat * 2, { pitch: 0.6, volume: 1.2 });
+                    playAcousticHit(ctx, 'tom', startTime + beat * 2.5, { pitch: 0.75, volume: 1.0 });
+                    playAcousticHit(ctx, 'snare', startTime + beat * 3);
+                    break;
+                case 'poly':
+                    for(let i=0; i<3; i++) playAcousticHit(ctx, 'tom', startTime + (i * (beat * 0.6)), { pitch: 0.9, volume: 0.9 });
+                    playAcousticHit(ctx, 'kick', startTime);
+                    playAcousticHit(ctx, 'snare', startTime + beat * 2);
+                    break;
+                default:
+                    playAcousticHit(ctx, 'kick', startTime); 
+                    playAcousticHit(ctx, 'snare', startTime + beat);
+                    break;
+            }
+        }
+
+        function stopAudioLoop() {
+            if (activeLoopTimer) {
+                clearInterval(activeLoopTimer);
+                activeLoopTimer = null;
+            }
+            activeLoopCardId = null;
+            document.querySelectorAll('.audio-btn').forEach(btn => {
+                btn.classList.remove('playing');
+                if(btn.dataset.tableBtn === "true") {
+                    btn.innerText = "🔊 Loop";
+                } else {
+                    btn.innerText = "🔊 Toggle Loop";
+                }
+            });
+        }
+
+        function toggleAudioLoop(event, mode, termIdParam) {
+            event.stopPropagation();
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const ctx = audioCtx;
+            let termId = termIdParam || ((mode === 'study') ? drumTerms[currentStudyIndex].id : currentQuizCard.id);
+
+            if (activeLoopCardId === termId) {
+                stopAudioLoop();
+                return;
+            }
+
+            stopAudioLoop();
+            activeLoopCardId = termId;
+
+            // Highlight all corresponding buttons for this term (cards + table rows)
+            document.querySelectorAll('.audio-btn').forEach(btn => {
+                const btnTermId = btn.dataset.termId;
+                if (btnTermId === termId || (mode !== 'table' && btn.id.includes(mode))) {
+                    btn.classList.add('playing');
+                    btn.innerText = btn.dataset.tableBtn === "true" ? "⏹ Stop" : "⏹ Stop Loop";
+                }
+            });
+
+            const loopIntervalMs = 2000;
+            let now = ctx.currentTime + 0.05;
+            schedulePattern(ctx, termId, now);
+
+            activeLoopTimer = setInterval(() => {
+                if (!audioCtx || activeLoopCardId !== termId) {
+                    stopAudioLoop();
+                    return;
+                }
+                let loopTime = audioCtx.currentTime + 0.05;
+                schedulePattern(audioCtx, termId, loopTime);
+            }, loopIntervalMs);
+        }
+
+        function updateStudyCard() {
+            stopAudioLoop();
+            const card = drumTerms[currentStudyIndex];
+            document.getElementById('study-category').innerText = card.category;
+            document.getElementById('study-term').innerText = card.term;
+            document.getElementById('study-def').innerHTML = card.def;
+            document.getElementById('study-counter').innerText = `Card ${currentStudyIndex + 1} of ${drumTerms.length}`;
+            if (isStudyFlipped) {
+                document.getElementById('study-card').classList.remove('flipped');
+                isStudyFlipped = false;
+            }
+        }
+
+        function handleCardClick(event, mode) {
+            if (event.target.classList.contains('audio-btn') || event.target.closest('.audio-btn')) return;
+            if (mode === 'study') {
+                document.getElementById('study-card').classList.toggle('flipped');
+                isStudyFlipped = !isStudyFlipped;
+            } else {
+                document.getElementById('quiz-card').classList.toggle('flipped');
+                isQuizFlipped = !isQuizFlipped;
+                if (isQuizFlipped) {
+                    document.getElementById('quiz-action-buttons').style.display = 'flex';
+                    document.getElementById('quiz-start-prompt').style.display = 'none';
+                }
+            }
+        }
+
+        function nextCard() { currentStudyIndex = (currentStudyIndex + 1) % drumTerms.length; updateStudyCard(); }
+        function prevCard() { currentStudyIndex = (currentStudyIndex - 1 + drumTerms.length) % drumTerms.length; updateStudyCard(); }
+
+        function nextQuizCard() {
+            stopAudioLoop();
+            if (quizDeck.length === 0) quizDeck = [...drumTerms];
+            const randomIndex = Math.floor(Math.random() * quizDeck.length);
+            currentQuizCard = quizDeck.splice(randomIndex, 1)[0];
+            document.getElementById('quiz-category').innerText = currentQuizCard.category;
+            document.getElementById('quiz-term').innerText = currentQuizCard.term;
+            document.getElementById('quiz-def').innerHTML = currentQuizCard.def;
+            if (isQuizFlipped) {
+                document.getElementById('quiz-card').classList.remove('flipped');
+                isQuizFlipped = false;
+            }
+            document.getElementById('quiz-action-buttons').style.display = 'none';
+            document.getElementById('quiz-start-prompt').style.display = 'block';
+        }
+
+        function revealQuizCard() {
+            document.getElementById('quiz-card').classList.add('flipped');
+            isQuizFlipped = true;
+            document.getElementById('quiz-action-buttons').style.display = 'flex';
+            document.getElementById('quiz-start-prompt').style.display = 'none';
+        }
+
+        function answerQuiz(correct) {
+            if (correct) { quizCorrectCount++; document.getElementById('quiz-correct').innerText = quizCorrectCount; }
+            else { quizIncorrectCount++; document.getElementById('quiz-incorrect').innerText = quizIncorrectCount; }
+            nextQuizCard();
+        }
+
+        function populateIndexTable(filterText = "") {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = "";
+            
+            const lowerFilter = filterText.toLowerCase();
+            const filtered = drumTerms.filter(item => 
+                item.term.toLowerCase().includes(lowerFilter) || 
+                item.category.toLowerCase().includes(lowerFilter) || 
+                item.def.toLowerCase().includes(lowerFilter)
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">No matching terms found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const isPlaying = activeLoopCardId === item.id;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.term}</strong></td>
+                    <td><span class="category-tag" style="display: inline-block;">${item.category}</span></td>
+                    <td>${item.def}</td>
+                    <td style="text-align: center;">
+                        <button class="audio-btn ${isPlaying ? 'playing' : ''}" 
+                                data-term-id="${item.id}" 
+                                data-table-btn="true" 
+                                onclick="toggleAudioLoop(event, 'table', '${item.id}')" 
+                                style="margin: 0 auto; padding: 5px 10px; font-size: 0.75rem;">
+                            ${isPlaying ? '⏹ Stop' : '🔊 Loop'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterIndexTable() {
+            const query = document.getElementById('table-search').value;
+            populateIndexTable(query);
+        }
+
+        function switchTab(mode) {
+            stopAudioLoop();
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            
+            if (mode === 'index') {
+                document.querySelector('.nav-tabs button:nth-child(1)').classList.add('active');
+                document.getElementById('index-view').classList.add('active');
+                populateIndexTable(document.getElementById('table-search').value);
+            } else if (mode === 'study') {
+                document.querySelector('.nav-tabs button:nth-child(2)').classList.add('active');
+                document.getElementById('study-view').classList.add('active');
+                updateStudyCard();
+            } else if (mode === 'quiz') {
+                document.querySelector('.nav-tabs button:nth-child(3)').classList.add('active');
+                document.getElementById('quiz-view').classList.add('active');
+                if (!currentQuizCard) nextQuizCard();
+            }
+        }
+
+        // Initialize Index Table as landing view
+        populateIndexTable();
+    </script>
+</body>
+</html>
