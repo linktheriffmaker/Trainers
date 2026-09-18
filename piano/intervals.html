@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Interval & Harmonic Trainer</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.scroller { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 3px; flex: 1; }
+.scroller::-webkit-scrollbar { height: 3px; }
+.scroller::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+#app {
+  --bg:#1a1a2e; --panel:#252540; --border:#404060; --text:#e8e8f0; --label:#9090b0;
+  --info:#50506a; --seg-off-bg:#252540; --seg-off-border:#404060; --seg-off-color:#c0c0e0;
+  --input-bg:#1a1a2e; --dot-off:#404060; --note-circle:#ffffff; --note-text:#1a1a2e;
+  --wkey:#f0f0ee; --wkey-stroke:#6a6a85; --bkey:#141420;
+}
+#app.light {
+  --bg:#f0ece4; --panel:#ffffff; --border:#dddddd; --text:#1a1a2e; --label:#8a8270;
+  --info:#b0a696; --seg-off-bg:#ffffff; --seg-off-border:#ccccdd; --seg-off-color:#444466;
+  --input-bg:#ffffff; --dot-off:#d8d0c0; --note-circle:#1a1a2e; --note-text:#ffffff;
+  --wkey:#fffdf7; --wkey-stroke:#a89878; --bkey:#241a10;
+}
+</style>
+</head>
+<body style="margin:0;padding:0;background:#1a1a2e">
+<div style="background:#1a1a2e;border-bottom:1px solid #2a2a45;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:1000;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+  <a href="index.html" style="display:flex;align-items:center;gap:7px;text-decoration:none;color:#e8e8f0;font-weight:700;font-size:14px;flex-shrink:0">
+    <span style="font-size:16px;line-height:1">&#127929;</span><span>Piano Trainers</span>
+  </a>
+  <div class="scroller" style="display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto"><a href="scales.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Scales</a><a href="arpeggios.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Arpeggios</a><a href="inversions.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Inversions</a><a href="chords.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Style Chords</a><a href="intervals.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:700;white-space:nowrap;background:#4f46e5;color:#ffffff;border:1px solid #6360f0;">Intervals</a><a href="sight-reading.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Sight Reading</a></div>
+</div>
+
+<div id="app" style="background:var(--bg);color:var(--text);padding:14px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;transition:background .15s,color .15s">
+
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">
+    <span style="font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.07em;flex-shrink:0;min-width:52px">Key</span>
+    <div class="scroller" id="seg-root"></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">
+    <span style="font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.07em;flex-shrink:0;min-width:52px">Scale</span>
+    <div class="scroller" id="seg-scale"></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">
+    <span style="font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.07em;flex-shrink:0;min-width:52px">Time</span>
+    <div class="scroller" id="seg-beats"></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px">
+    <span style="font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.07em;flex-shrink:0;min-width:52px">Range</span>
+    <div class="scroller" id="seg-octaves"></div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="action-row"></div>
+
+  <div style="display:flex;align-items:center;gap:14px;padding:9px 12px;margin-bottom:12px;border-radius:8px;background:var(--panel);border:1px solid var(--border);flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.07em">BPM</span>
+      <input id="bpm" type="number" value="60" min="30" max="240" style="width:56px;font-size:13px;padding:4px 6px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-family:inherit">
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.07em;flex-shrink:0">Volume</span>
+      <input id="volume" type="range" min="0" max="0.5" step="0.01" value="0.2" style="width:110px">
+    </div>
+  </div>
+
+  <div id="beatContainer" style="display:flex;justify-content:center;gap:8px;margin-bottom:14px"></div>
+
+  <div style="border-radius:10px;background:var(--panel);border:1px solid var(--border);padding:28px 14px;display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:10px">
+    <div id="noteCircle" style="width:160px;height:160px;border-radius:50%;background:var(--note-circle);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,0.35)">
+      <span id="note" style="font-size:58px;font-weight:800;color:var(--note-text)">–</span>
+    </div>
+    <div style="font-size:21px;color:#818cf8;font-weight:700">Interval: <span id="interval">–</span></div>
+    <div style="font-size:17px;color:#a5b4fc;font-weight:600">Harmonic: <span id="harmonic">–</span></div>
+    <div id="fb-outer" style="overflow-x:auto;overflow-y:hidden;border-radius:8px;max-width:100%">
+      <canvas id="mini-kb"></canvas>
+    </div>
+  </div>
+
+  <div id="info" style="font-size:11px;color:var(--info);margin-top:8px;min-height:14px"></div>
+</div>
+
+<script>
+const chromatic = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
+
+const scales = {
+  Major: [0,2,4,5,7,9,11],
+  "Natural Minor": [0,2,3,5,7,8,10],
+  "Harmonic Minor": [0,2,3,5,7,8,11],
+  "Melodic Minor": [0,2,3,5,7,9,11],
+  Dominant: [0,2,4,5,7,9,10],
+};
+const SCNAMES = Object.keys(scales);
+
+const scaleDegreeNames = {
+  Major: ["I","ii","iii","IV","V","vi","vii°"],
+  "Natural Minor": ["i","ii°","III","iv","v","VI","VII"],
+  "Harmonic Minor": ["i","ii°","III+","iv","V","VI","vii°"],
+  "Melodic Minor": ["i","ii","III+","IV","V","vi°","vii°"],
+  Dominant: ["I","ii","iii","IV","V","vi","bVII"],
+};
+
+const intervalNames = ["Unison","m2","M2","m3","M3","P4","TT","P5","m6","M6","m7","M7"];
+const BEATS_OPTS = [2,3,4,5,6,7];
+
+let rootIdx = 0, scaleIdx = 0, beatsPerBar = 4, octaves = 1, isDark = true;
+let audioCtx, timer, beat = 0, nextTickTime = 0, running = false, showNote = true;
+let highlightPitch = -1;
+
+/* ---- mini keyboard (display only, 2 octaves) ---- */
+const START_MIDI=60, OCTAVES=2, END_MIDI=START_MIDI+OCTAVES*12;
+const NOTE_INFO=[
+  {white:true},{white:false},{white:true},{white:false},{white:true},{white:true},
+  {white:false},{white:true},{white:false},{white:true},{white:false},{white:true}
+];
+const WKW=28,WKH=90,BKW=17,BKH=56;
+const KKEYS=[]; let kwc=0;
+for(let m=START_MIDI;m<=END_MIDI;m++){ if(NOTE_INFO[m%12].white){ KKEYS.push({midi:m,white:true,x:kwc*WKW,w:WKW,h:WKH}); kwc++; } }
+let kwc2=0;
+for(let m=START_MIDI;m<=END_MIDI;m++){
+  if(NOTE_INFO[m%12].white){ kwc2++; }
+  else { KKEYS.push({midi:m,white:false,x:kwc2*WKW-BKW/2,w:BKW,h:BKH}); }
+}
+const KB_W=kwc*WKW, KB_H=WKH;
+const kbCanvas=document.getElementById("mini-kb");
+const kbCtx=kbCanvas.getContext("2d");
+function resizeMiniKb(){
+  const dpr=window.devicePixelRatio||1;
+  kbCanvas.style.width=KB_W+"px"; kbCanvas.style.height=KB_H+"px";
+  kbCanvas.width=Math.round(KB_W*dpr); kbCanvas.height=Math.round(KB_H*dpr);
+  kbCtx.setTransform(dpr,0,0,dpr,0,0);
+}
+resizeMiniKb();
+function drawMiniKb(){
+  const c=kbCtx;
+  const wkey=getComputedStyle(document.getElementById("app")).getPropertyValue('--wkey').trim()||"#f0f0ee";
+  const wstroke=getComputedStyle(document.getElementById("app")).getPropertyValue('--wkey-stroke').trim()||"#6a6a85";
+  const bkey=getComputedStyle(document.getElementById("app")).getPropertyValue('--bkey').trim()||"#141420";
+  c.clearRect(0,0,KB_W,KB_H);
+  KKEYS.filter(k=>k.white).forEach(k=>{
+    const hl=(k.midi%12)===highlightPitch;
+    c.fillStyle=hl?"#818cf8":wkey; c.fillRect(k.x,0,k.w,k.h);
+    c.strokeStyle=wstroke; c.lineWidth=1; c.strokeRect(k.x,0,k.w,k.h);
+  });
+  KKEYS.filter(k=>!k.white).forEach(k=>{
+    const hl=(k.midi%12)===highlightPitch;
+    c.fillStyle=hl?"#6d28d9":bkey; c.fillRect(k.x,0,k.w,k.h);
+  });
+}
+
+function sbtnStyle(isOn){
+  if(isOn) return "font-size:12px;padding:5px 11px;cursor:pointer;border-radius:7px;border:1px solid #6360f0;background:#4f46e5;color:#ffffff;font-family:inherit;white-space:nowrap;flex-shrink:0";
+  return "font-size:12px;padding:5px 11px;cursor:pointer;border-radius:7px;border:1px solid var(--seg-off-border);background:var(--seg-off-bg);color:var(--seg-off-color);font-family:inherit;white-space:nowrap;flex-shrink:0";
+}
+
+function buildSegs(){
+  const rootWrap = document.getElementById("seg-root"); rootWrap.innerHTML = "";
+  chromatic.forEach((label,i)=>{
+    const b=document.createElement("button");
+    b.style.cssText=sbtnStyle(i===rootIdx);
+    b.textContent=label;
+    b.onclick=()=>{rootIdx=i;buildSegs();};
+    rootWrap.appendChild(b);
+  });
+
+  const scaleWrap = document.getElementById("seg-scale"); scaleWrap.innerHTML = "";
+  SCNAMES.forEach((label,i)=>{
+    const b=document.createElement("button");
+    b.style.cssText=sbtnStyle(i===scaleIdx);
+    b.textContent=label;
+    b.onclick=()=>{scaleIdx=i;buildSegs();};
+    scaleWrap.appendChild(b);
+  });
+
+  const beatsWrap = document.getElementById("seg-beats"); beatsWrap.innerHTML = "";
+  BEATS_OPTS.forEach(n=>{
+    const b=document.createElement("button");
+    b.style.cssText=sbtnStyle(n===beatsPerBar);
+    b.textContent=n+"/4";
+    b.onclick=()=>{beatsPerBar=n;beat=0;buildSegs();buildBeats();};
+    beatsWrap.appendChild(b);
+  });
+
+  const octWrap = document.getElementById("seg-octaves"); octWrap.innerHTML = "";
+  [{v:1,l:"1 Octave"},{v:2,l:"2 Octaves (ext.)"}].forEach(o=>{
+    const b=document.createElement("button");
+    b.style.cssText=sbtnStyle(o.v===octaves);
+    b.textContent=o.l;
+    b.onclick=()=>{octaves=o.v;buildSegs();};
+    octWrap.appendChild(b);
+  });
+
+  updateInfo();
+}
+
+const BTNS=[
+  {id:"btn-start", label:"▶ Start", onBg:"#166534", onColor:"#fff", onBorder:"#22c55e"},
+  {id:"btn-stop",  label:"■ Stop",  onBg:"#7f1d1d", onColor:"#fff", onBorder:"#ef4444"},
+  {id:"btn-note",  label:"◉ Note",  onBg:"#6d28d9", onColor:"#fff", onBorder:"#9f67fa", offBg:"#303050", offColor:"#c0c0e0", offBorder:"#505070", toggle:true, initOn:true},
+  {id:"btn-theme", label:"☀ Light", onBg:"#374151", onColor:"#fff", onBorder:"#6b7280"},
+];
+function actionBtnStyle(def,isOn){
+  const bg=def.toggle?(isOn?def.onBg:def.offBg):def.onBg;
+  const col=def.toggle?(isOn?def.onColor:def.offColor):def.onColor;
+  const bdr=def.toggle?(isOn?def.onBorder:def.offBorder):def.onBorder;
+  return `font-size:12px;padding:6px 13px;cursor:pointer;border-radius:7px;border:1px solid ${bdr};background:${bg};color:${col};font-family:inherit;white-space:nowrap;font-weight:500;line-height:1.4`;
+}
+function buildActionRow(){
+  const row=document.getElementById("action-row"); row.innerHTML="";
+  BTNS.forEach(def=>{
+    const b=document.createElement("button");
+    b.id=def.id;
+    const isOn=def.id==="btn-note"?showNote:true;
+    b.style.cssText=actionBtnStyle(def,isOn);
+    b.textContent=def.id==="btn-note"?(showNote?"◉ Hide Note":"◎ Show Note"):
+                  def.id==="btn-theme"&&!isDark?"🌙 Dark":def.label;
+    b.addEventListener("mouseenter",()=>{b.style.opacity="0.85";});
+    b.addEventListener("mouseleave",()=>{b.style.opacity="1";});
+    b.onclick=btnHandlers[def.id];
+    row.appendChild(b);
+  });
+}
+const btnHandlers={
+  "btn-start":()=>{
+    if(running) return;
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    audioCtx.resume().then(()=>{
+      running=true; beat=0; nextTickTime=audioCtx.currentTime; schedule();
+    });
+  },
+  "btn-stop":()=>{ running=false; clearTimeout(timer); },
+  "btn-note":()=>{ showNote=!showNote; buildActionRow(); drawMiniKb(); },
+  "btn-theme":()=>{
+    isDark=!isDark;
+    document.getElementById("app").classList.toggle("light",!isDark);
+    buildActionRow();buildSegs();drawMiniKb();
+  },
+};
+
+function buildBeats(){
+  const container=document.getElementById("beatContainer");
+  container.innerHTML="";
+  for(let i=0;i<beatsPerBar;i++){
+    const d=document.createElement("div");
+    d.style.cssText="width:11px;height:11px;border-radius:50%;background:var(--dot-off);transition:background .1s";
+    container.appendChild(d);
+  }
+}
+
+function updateInfo(){
+  document.getElementById("info").textContent =
+    chromatic[rootIdx]+" "+SCNAMES[scaleIdx]+" · "+beatsPerBar+"/4 · "+octaves+" octave"+(octaves>1?"s":"");
+}
+
+function updateNote(){
+  const scale=scales[SCNAMES[scaleIdx]];
+  let extended=[];
+  for(let o=0;o<octaves;o++){
+    scale.forEach((s,i)=>{ extended.push({semitones:s+o*12, degreeIndex:i}); });
+  }
+  const choice=extended[Math.floor(Math.random()*extended.length)];
+  const noteIndex=(rootIdx+choice.semitones)%12;
+  const intervalSemitones=choice.semitones%12;
+  let intervalLabel=intervalNames[intervalSemitones];
+  if(choice.semitones>=12){
+    if(choice.degreeIndex===1) intervalLabel+=" (9)";
+    if(choice.degreeIndex===3) intervalLabel+=" (11)";
+    if(choice.degreeIndex===5) intervalLabel+=" (13)";
+  }
+  document.getElementById("note").textContent = showNote?chromatic[noteIndex]:"";
+  document.getElementById("interval").textContent = intervalLabel;
+  document.getElementById("harmonic").textContent = scaleDegreeNames[SCNAMES[scaleIdx]][choice.degreeIndex];
+  highlightPitch = showNote?noteIndex:-1;
+  drawMiniKb();
+}
+
+function schedule(){
+  const bpmInput=document.getElementById("bpm");
+  const volumeInput=document.getElementById("volume");
+  const secondsPerBeat=60/parseInt(bpmInput.value);
+  const isDownbeat=beat===0;
+
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.frequency.value=isDownbeat?1600:1000;
+  gain.gain.value=isDownbeat?volumeInput.value*1.4:volumeInput.value;
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(nextTickTime); osc.stop(nextTickTime+0.05);
+
+  const dots=document.querySelectorAll("#beatContainer div");
+  dots.forEach((d,i)=>{ d.style.background = i===beat?"#4f46e5":"var(--dot-off)"; });
+
+  if(isDownbeat) updateNote();
+
+  beat=(beat+1)%beatsPerBar;
+  nextTickTime+=secondsPerBeat;
+  const delay=Math.max((nextTickTime-audioCtx.currentTime-0.02)*1000,0);
+  timer=setTimeout(schedule,delay);
+}
+
+buildSegs();
+buildActionRow();
+buildBeats();
+drawMiniKb();
+</script>
+</body>
+</html>

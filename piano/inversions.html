@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Chord Inversions Trainer</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.scroller { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 3px; flex: 1; }
+.scroller::-webkit-scrollbar { height: 3px; }
+.scroller::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#1a1a2e">
+<div style="background:#1a1a2e;border-bottom:1px solid #2a2a45;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:1000;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+  <a href="index.html" style="display:flex;align-items:center;gap:7px;text-decoration:none;color:#e8e8f0;font-weight:700;font-size:14px;flex-shrink:0">
+    <span style="font-size:16px;line-height:1">&#127929;</span><span>Piano Trainers</span>
+  </a>
+  <div class="scroller" style="display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto"><a href="scales.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Scales</a><a href="arpeggios.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Arpeggios</a><a href="inversions.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:700;white-space:nowrap;background:#4f46e5;color:#ffffff;border:1px solid #6360f0;">Inversions</a><a href="chords.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Style Chords</a><a href="intervals.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Intervals</a><a href="sight-reading.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Sight Reading</a></div>
+</div>
+
+
+<div id="app" style="background:#1a1a2e;color:#e8e8f0;padding:14px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh">
+
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">
+    <span style="font-size:11px;color:#9090b0;text-transform:uppercase;letter-spacing:.07em;flex-shrink:0;min-width:38px">Root</span>
+    <div class="scroller" id="seg-root"></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">
+    <span style="font-size:11px;color:#9090b0;text-transform:uppercase;letter-spacing:.07em;flex-shrink:0;min-width:38px">Chord</span>
+    <div class="scroller" id="seg-chord"></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">
+    <span style="font-size:11px;color:#9090b0;text-transform:uppercase;letter-spacing:.07em;flex-shrink:0;min-width:38px">Inv.</span>
+    <div class="scroller" id="seg-inv"></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="action-row"></div>
+
+  <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;margin-bottom:12px;border-radius:8px;background:#252540;border:1px solid #404060">
+    <button id="unlock-btn" style="font-size:13px;padding:5px 14px;border-radius:7px;cursor:pointer;border:1px solid #22c55e;background:#166534;color:#ffffff;font-family:inherit;font-weight:600;white-space:nowrap">🔊 Enable audio</button>
+    <span id="audio-hint" style="font-size:12px;color:#8080a0">Tap first — then click any key to hear it</span>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#7070a0"><div style="width:13px;height:13px;border-radius:50%;border:2.5px solid #fbbf24;flex-shrink:0"></div>Bass note (this inversion)</div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#7070a0"><div style="width:11px;height:11px;border-radius:50%;background:#f43f5e;flex-shrink:0"></div>Root</div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#7070a0"><div style="width:11px;height:11px;border-radius:50%;background:#4ade80;flex-shrink:0"></div>Other tone</div>
+  </div>
+
+  <div id="fb-outer" style="overflow-x:auto;overflow-y:hidden;border-radius:10px">
+    <div style="position:relative;display:inline-block">
+      <canvas id="fb"></canvas>
+      <div id="tooltip" style="display:none;position:absolute;border-radius:8px;padding:5px 10px;font-size:12px;pointer-events:none;white-space:nowrap;z-index:20;font-weight:500;background:#303055;border:1px solid #505070;color:#e8e8f8"></div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+    <button id="zoom-out" style="font-size:14px;width:30px;height:30px;line-height:1;cursor:pointer;border-radius:7px;border:1px solid #404060;background:#252540;color:#e8e8f0;font-family:inherit;font-weight:700">－</button>
+    <span id="zoom-label" style="font-size:11px;color:#7070a0;min-width:38px;text-align:center">100%</span>
+    <button id="zoom-in" style="font-size:14px;width:30px;height:30px;line-height:1;cursor:pointer;border-radius:7px;border:1px solid #404060;background:#252540;color:#e8e8f0;font-family:inherit;font-weight:700">＋</button>
+    <span style="font-size:11px;color:#50506a">Zoom the keyboard for a sharper, easier-to-tap view</span>
+  </div>
+  <div id="info" style="font-size:11px;color:#50506a;margin-top:8px;min-height:14px"></div>
+
+  <div id="quiz-panel" style="display:none;margin-top:12px;padding:12px;border-radius:10px;background:#252540;border:1px solid #404060">
+    <div id="quiz-q" style="font-size:13px;color:#d0d0f0;margin-bottom:8px;font-weight:500">Voicings shown are randomized — guess the inversion, then check.</div>
+    <div id="quiz-opts" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    <div id="quiz-feedback" style="margin-top:9px;font-size:13px;font-weight:600"></div>
+    <div id="quiz-score" style="font-size:12px;margin-top:4px;color:#60607a"></div>
+  </div>
+</div>
+
+<script>
+const ROOTS=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const CHORDS={
+  "Major":{i:[0,4,7],d:["1","3","5"]},
+  "Minor":{i:[0,3,7],d:["1","b3","5"]},
+  "Diminished":{i:[0,3,6],d:["1","b3","b5"]},
+  "Augmented":{i:[0,4,8],d:["1","3","#5"]},
+  "Sus2":{i:[0,2,7],d:["1","2","5"]},
+  "Sus4":{i:[0,5,7],d:["1","4","5"]},
+  "Major 7":{i:[0,4,7,11],d:["1","3","5","7"]},
+  "Dominant 7":{i:[0,4,7,10],d:["1","3","5","b7"]},
+  "Minor 7":{i:[0,3,7,10],d:["1","b3","5","b7"]},
+  "Minor 7b5":{i:[0,3,6,10],d:["1","b3","b5","b7"]},
+  "Diminished 7":{i:[0,3,6,9],d:["1","b3","b5","bb7"]},
+  "Minor Major 7":{i:[0,3,7,11],d:["1","b3","5","7"]},
+  "6":{i:[0,4,7,9],d:["1","3","5","6"]},
+  "Minor 6":{i:[0,3,7,9],d:["1","b3","5","6"]}
+};
+const CHNAMES=Object.keys(CHORDS);
+const INV_NAMES=["Root position","1st inversion","2nd inversion","3rd inversion"];
+
+let rootIdx=0,chordIdx=0,invIdx=0,isDark=true;
+let showNames=true,quizMode=false;
+let audioCtx=null,audioUnlocked=false;
+let nodes=[],quizScore={r:0,w:0},quizAnswer=null;
+
+/* ---- keyboard geometry: 3 octaves, C3 to C6, to fit any bass voicing ---- */
+const START_MIDI=48, OCTAVES=3, END_MIDI=START_MIDI+OCTAVES*12;
+const NOTE_INFO=[
+  {name:'C',white:true},{name:'C#',white:false},{name:'D',white:true},{name:'D#',white:false},
+  {name:'E',white:true},{name:'F',white:true},{name:'F#',white:false},{name:'G',white:true},
+  {name:'G#',white:false},{name:'A',white:true},{name:'A#',white:false},{name:'B',white:true}
+];
+const WKW=42,WKH=160,BKW=26,BKH=100,PT=8;
+const KEYS=[];
+let whiteCount=0;
+for(let m=START_MIDI;m<=END_MIDI;m++){ if(NOTE_INFO[m%12].white){ KEYS.push({midi:m,white:true,name:NOTE_INFO[m%12].name,x:whiteCount*WKW,w:WKW,h:WKH}); whiteCount++; } }
+let wc2=0;
+for(let m=START_MIDI;m<=END_MIDI;m++){
+  if(NOTE_INFO[m%12].white){ wc2++; }
+  else { KEYS.push({midi:m,white:false,name:NOTE_INFO[m%12].name,x:wc2*WKW-BKW/2,w:BKW,h:BKH}); }
+}
+const CVW=whiteCount*WKW, CVH=PT+WKH+22;
+function octaveOf(midi){ return Math.floor(midi/12)-1; }
+
+function computeVoicing(){
+  const ch=CHORDS[CHNAMES[chordIdx]];
+  const n=ch.i.length;
+  const inv=Math.min(invIdx,n-1);
+  const order=[]; for(let k=0;k<n;k++) order.push(ch.i[(inv+k)%n]);
+  let base=48+rootIdx;
+  let notesArr=[],prev=-1;
+  order.forEach((iv,idx)=>{
+    let note=base+iv;
+    while(note<=prev) note+=12;
+    const degIdx=ch.i.indexOf(iv);
+    notesArr.push({midi:note,deg:ch.d[degIdx],isBass:idx===0});
+    prev=note;
+  });
+  return notesArr;
+}
+
+const BTNS=[
+  {id:"btn-play",  label:"▶ Play voicing", onBg:"#1d4ed8", onColor:"#fff", onBorder:"#3b6ef0", offBg:"#1d4ed8", offColor:"#fff", offBorder:"#3b6ef0", toggle:false},
+  {id:"btn-quiz",  label:"◎ Quiz",   onBg:"#b45309", onColor:"#fff", onBorder:"#d97706", offBg:"#303050", offColor:"#c0c0e0", offBorder:"#505070", toggle:true},
+  {id:"btn-names", label:"♩ Names",  onBg:"#6d28d9", onColor:"#fff", onBorder:"#9f67fa", offBg:"#303050", offColor:"#c0c0e0", offBorder:"#505070", toggle:true, initOn:true},
+  {id:"btn-theme", label:"☀ Light",  onBg:"#374151", onColor:"#fff", onBorder:"#6b7280", offBg:"#374151", offColor:"#fff",    offBorder:"#6b7280",  toggle:false},
+];
+
+function btnStyle(def,isOn){
+  const bg=isOn?def.onBg:def.offBg;
+  const col=isOn?def.onColor:def.offColor;
+  const bdr=isOn?def.onBorder:def.offBorder;
+  return `font-size:12px;padding:6px 13px;cursor:pointer;border-radius:7px;border:1px solid ${bdr};background:${bg};color:${col};font-family:inherit;white-space:nowrap;font-weight:500;line-height:1.4`;
+}
+
+function buildActionRow(){
+  const row=document.getElementById("action-row");
+  row.innerHTML="";
+  const states={ "btn-quiz":quizMode, "btn-names":showNames };
+  BTNS.forEach(def=>{
+    const b=document.createElement("button");
+    b.id=def.id;
+    const isOn=def.toggle?(states[def.id]!==undefined?states[def.id]:!!def.initOn):true;
+    b.style.cssText=btnStyle(def,isOn);
+    b.textContent=def.id==="btn-quiz"&&quizMode?"✕ Exit quiz":
+                  def.id==="btn-theme"&&!isDark?"🌙 Dark":def.label;
+    b.addEventListener("mouseenter",()=>{b.style.opacity="0.85";});
+    b.addEventListener("mouseleave",()=>{b.style.opacity="1";});
+    b.onclick=btnHandlers[def.id];
+    row.appendChild(b);
+  });
+}
+
+const btnHandlers={
+  "btn-play":()=>{
+    if(!audioUnlocked){alert("Tap Enable audio first");return;}
+    const v=computeVoicing();
+    v.forEach(nt=>playNote(nt.midi,1.1,0));
+  },
+  "btn-quiz":()=>{
+    quizMode=!quizMode;
+    const panel=document.getElementById("quiz-panel");
+    if(quizMode){ panel.style.display="block"; newQuizRound(); }
+    else{ panel.style.display="none"; }
+    buildActionRow();buildInvSeg();draw();
+  },
+  "btn-names":()=>{showNames=!showNames;buildActionRow();draw();},
+  "btn-theme":()=>{
+    isDark=!isDark;
+    const app=document.getElementById("app");
+    if(isDark){
+      app.style.background="#1a1a2e";app.style.color="#e8e8f0";
+      document.getElementById("quiz-panel").style.background="#252540";
+      document.getElementById("quiz-panel").style.borderColor="#404060";
+      document.getElementById("quiz-q").style.color="#d0d0f0";
+      document.getElementById("quiz-score").style.color="#60607a";
+      document.getElementById("info").style.color="#50506a";
+      document.getElementById("tooltip").style.background="#303055";
+      document.getElementById("tooltip").style.borderColor="#505070";
+      document.getElementById("tooltip").style.color="#e8e8f8";
+    } else {
+      app.style.background="#f0ece4";app.style.color="#1a1a2e";
+      document.getElementById("quiz-panel").style.background="#ffffff";
+      document.getElementById("quiz-panel").style.borderColor="#dddddd";
+      document.getElementById("quiz-q").style.color="#1a1a2e";
+      document.getElementById("quiz-score").style.color="#9ca3af";
+      document.getElementById("info").style.color="#c0b8a8";
+      document.getElementById("tooltip").style.background="#ffffff";
+      document.getElementById("tooltip").style.borderColor="#cccccc";
+      document.getElementById("tooltip").style.color="#1a1a2e";
+    }
+    buildActionRow();buildSegs();buildInvSeg();draw();
+  }
+};
+
+function sbtnStyle(isOn){
+  if(isOn) return "font-size:12px;padding:5px 11px;cursor:pointer;border-radius:7px;border:1px solid #6360f0;background:#4f46e5;color:#ffffff;font-family:inherit;white-space:nowrap;flex-shrink:0";
+  if(isDark) return "font-size:12px;padding:5px 11px;cursor:pointer;border-radius:7px;border:1px solid #404060;background:#252540;color:#c0c0e0;font-family:inherit;white-space:nowrap;flex-shrink:0";
+  return "font-size:12px;padding:5px 11px;cursor:pointer;border-radius:7px;border:1px solid #ccccdd;background:#ffffff;color:#444466;font-family:inherit;white-space:nowrap;flex-shrink:0";
+}
+
+function buildSegs(){
+  ["seg-root","seg-chord"].forEach((id,si)=>{
+    const wrap=document.getElementById(id);wrap.innerHTML="";
+    const list=si===0?ROOTS:CHNAMES;
+    const current=si===0?rootIdx:chordIdx;
+    list.forEach((label,i)=>{
+      const b=document.createElement("button");
+      b.style.cssText=sbtnStyle(i===current);
+      b.textContent=label;
+      b.onclick=()=>{
+        if(si===0)rootIdx=i;
+        else{ chordIdx=i; invIdx=0; buildInvSeg(); }
+        buildSegs();draw();
+      };
+      wrap.appendChild(b);
+    });
+  });
+}
+function buildInvSeg(){
+  const wrap=document.getElementById("seg-inv");wrap.innerHTML="";
+  const n=CHORDS[CHNAMES[chordIdx]].i.length;
+  INV_NAMES.slice(0,n).forEach((label,i)=>{
+    const b=document.createElement("button");
+    b.style.cssText=sbtnStyle(i===invIdx);
+    b.textContent=label.replace(" position","").replace(" inversion","");
+    b.onclick=()=>{invIdx=i;buildInvSeg();draw();if(quizMode)newQuizRound();};
+    wrap.appendChild(b);
+  });
+}
+
+const DARK={
+  canvasBg:"#0d0d1a",whiteKey:"#f0f0ee",whiteKeyStroke:"#6a6a85",blackKey:"#141420",blackKeyStroke:"#000",octLbl:"#505068",
+  root:{fill:"#f43f5e",glow:"rgba(244,63,94,.7)",text:"#fff"},
+  other:{fill:"#4ade80",glow:"rgba(74,222,128,.5)",text:"#001a0c"}
+};
+const LIGHT={
+  canvasBg:"#e8e0d0",whiteKey:"#fffdf7",whiteKeyStroke:"#a89878",blackKey:"#241a10",blackKeyStroke:"#000",octLbl:"#b0a070",
+  root:{fill:"#e11d48",glow:"rgba(225,29,72,.35)",text:"#fff"},
+  other:{fill:"#16a34a",glow:"rgba(22,163,74,.32)",text:"#fff"}
+};
+function th(){return isDark?DARK:LIGHT;}
+function nodeCol(deg){ const T=th(); return deg==="1"?T.root:T.other; }
+
+function initAudio(){
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const buf=audioCtx.createBuffer(1,1,22050);
+    const s=audioCtx.createBufferSource();s.buffer=buf;s.connect(audioCtx.destination);s.start(0);
+    audioUnlocked=true;
+    const btn=document.getElementById("unlock-btn");
+    btn.textContent="✓ Audio ready";btn.style.background="#374151";btn.style.borderColor="#505060";btn.style.color="#a0a0b0";btn.disabled=true;
+    document.getElementById("audio-hint").textContent="Click any key to hear it";
+  }catch(e){document.getElementById("audio-hint").textContent="Audio not available";}
+}
+
+function playNote(midi,dur=0.9,delay=0){
+  if(!audioUnlocked||!audioCtx)return;
+  if(audioCtx.state==="suspended")audioCtx.resume();
+  const ac=audioCtx,t=ac.currentTime+delay;
+  const freq=440*Math.pow(2,(midi-69)/12);
+  const g=ac.createGain();g.connect(ac.destination);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.2,t+0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  [1,2,3,4].forEach((h,i)=>{
+    const osc=ac.createOscillator();osc.type="sine";
+    osc.frequency.value=freq*h;
+    const hg=ac.createGain();hg.gain.value=[1,0.35,0.14,0.06][i];
+    osc.connect(hg);hg.connect(g);
+    osc.start(t);osc.stop(t+dur+0.05);
+  });
+}
+
+const canvas=document.getElementById("fb");
+const ctx=canvas.getContext("2d");
+function computeBaseScale(){
+  const outer=document.getElementById("fb-outer");
+  const w=(outer&&outer.clientWidth)||window.innerWidth;
+  if(w>700) return 0.85;
+  const targetWhiteKeys=8;
+  return Math.max(0.7,Math.min(2,w/(targetWhiteKeys*WKW)));
+}
+const baseScale=computeBaseScale();
+const ZOOM_KEY="pianoKeyboardZoom";
+let userZoom=1;
+try{ const saved=parseFloat(localStorage.getItem(ZOOM_KEY)); if(!isNaN(saved)) userZoom=Math.max(0.6,Math.min(2,saved)); }catch(e){}
+function resizeCanvas(){
+  const dpr=window.devicePixelRatio||1;
+  const scale=baseScale*userZoom;
+  canvas.style.width=(CVW*scale)+"px";
+  canvas.style.height=(CVH*scale)+"px";
+  canvas.width=Math.round(CVW*scale*dpr);
+  canvas.height=Math.round(CVH*scale*dpr);
+  ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);
+}
+resizeCanvas();
+document.getElementById("zoom-label").textContent=Math.round(userZoom*100)+"%";
+function setZoom(z){
+  userZoom=Math.max(0.6,Math.min(2,z));
+  resizeCanvas();draw();
+  document.getElementById("zoom-label").textContent=Math.round(userZoom*100)+"%";
+  try{ localStorage.setItem(ZOOM_KEY,userZoom); }catch(e){}
+}
+document.getElementById("zoom-in").onclick=()=>setZoom(userZoom+0.25);
+document.getElementById("zoom-out").onclick=()=>setZoom(userZoom-0.25);
+
+function draw(){
+  const voicing=computeVoicing();
+  const vMap={}; voicing.forEach(nt=>{ vMap[nt.midi]=nt; });
+  nodes=[];
+  const T=th(),c=ctx;
+  c.clearRect(0,0,CVW,CVH);
+  c.fillStyle=T.canvasBg;c.fillRect(0,0,CVW,CVH);
+
+  KEYS.filter(k=>k.white).forEach(k=>{
+    c.fillStyle=T.whiteKey;c.fillRect(k.x,PT,k.w,k.h);
+    c.strokeStyle=T.whiteKeyStroke;c.lineWidth=1;c.strokeRect(k.x,PT,k.w,k.h);
+    const nt=vMap[k.midi];
+    if(nt){
+      const col=nodeCol(nt.deg),cx=k.x+k.w/2,cy=PT+k.h-38;
+      c.save();
+      if(!quizMode){c.shadowColor=col.glow;c.shadowBlur=10;}
+      c.beginPath();c.arc(cx,cy,15,0,Math.PI*2);
+      c.fillStyle=col.fill;c.fill();
+      c.restore();
+      if(nt.isBass){ c.beginPath();c.arc(cx,cy,19,0,Math.PI*2);c.strokeStyle="#fbbf24";c.lineWidth=2.5;c.stroke(); }
+      const lbl=showNames?ROOTS[k.midi%12]:nt.deg;
+      c.save();c.shadowBlur=0;c.fillStyle=col.text;c.textAlign="center";c.textBaseline="middle";c.font="bold "+(lbl.length>2?"9":"11")+"px sans-serif";c.fillText(lbl,cx,cy);c.restore();
+      nodes.push({midi:k.midi,deg:nt.deg,noteName:ROOTS[k.midi%12]+octaveOf(k.midi),isBass:nt.isBass,cx,cy,white:true});
+    }
+  });
+  KEYS.filter(k=>!k.white).forEach(k=>{
+    c.fillStyle=T.blackKey;c.fillRect(k.x,PT,k.w,k.h);
+    c.strokeStyle=T.blackKeyStroke;c.lineWidth=1;c.strokeRect(k.x,PT,k.w,k.h);
+    const nt=vMap[k.midi];
+    if(nt){
+      const col=nodeCol(nt.deg),cx=k.x+k.w/2,cy=PT+k.h-24;
+      c.save();
+      if(!quizMode){c.shadowColor=col.glow;c.shadowBlur=10;}
+      c.beginPath();c.arc(cx,cy,11,0,Math.PI*2);
+      c.fillStyle=col.fill;c.fill();
+      c.restore();
+      if(nt.isBass){ c.beginPath();c.arc(cx,cy,15,0,Math.PI*2);c.strokeStyle="#fbbf24";c.lineWidth=2.2;c.stroke(); }
+      const lbl=showNames?ROOTS[k.midi%12]:nt.deg;
+      c.save();c.shadowBlur=0;c.fillStyle="#fff";c.textAlign="center";c.textBaseline="middle";c.font="bold 8px sans-serif";c.fillText(lbl,cx,cy);c.restore();
+      nodes.push({midi:k.midi,deg:nt.deg,noteName:ROOTS[k.midi%12]+octaveOf(k.midi),isBass:nt.isBass,cx,cy,white:false});
+    }
+  });
+
+  c.textAlign="center";c.textBaseline="top";c.font="10px sans-serif";c.fillStyle=T.octLbl;
+  KEYS.filter(k=>k.white&&k.name==='C').forEach(k=>{ c.fillText('C'+octaveOf(k.midi),k.x+k.w/2,PT+k.h+5); });
+
+  const ch=CHORDS[CHNAMES[chordIdx]];
+  const bassNote=voicing[0];
+  document.getElementById("info").textContent=ROOTS[rootIdx]+" "+CHNAMES[chordIdx]+" · "+INV_NAMES[Math.min(invIdx,ch.i.length-1)]+" · bass: "+bassNote.noteName;
+}
+
+function hit(mx,my){
+  for(let i=nodes.length-1;i>=0;i--){const n=nodes[i],dx=mx-n.cx,dy=my-n.cy;const r=n.white?17:13;if(dx*dx+dy*dy<=r*r)return n;}return null;
+}
+canvas.addEventListener("click",e=>{
+  const r=canvas.getBoundingClientRect();
+  const n=hit((e.clientX-r.left)*CVW/r.width,(e.clientY-r.top)*CVH/r.height);
+  if(!n)return;playNote(n.midi);if(!quizMode)showTip(e,n);
+});
+canvas.addEventListener("mousemove",e=>{
+  if(quizMode){hideTip();return;}
+  const r=canvas.getBoundingClientRect();
+  const n=hit((e.clientX-r.left)*CVW/r.width,(e.clientY-r.top)*CVH/r.height);
+  n?(canvas.style.cursor="pointer",showTip(e,n)):(canvas.style.cursor="default",hideTip());
+});
+canvas.addEventListener("mouseleave",hideTip);
+function showTip(e,n){
+  const tt=document.getElementById("tooltip");
+  const or=document.getElementById("fb-outer").getBoundingClientRect();
+  tt.innerHTML="<strong>"+n.noteName+"</strong> <span style='opacity:.6'>("+n.deg+(n.isBass?", bass":"")+")</span>";
+  tt.style.display="block";
+  tt.style.left=(e.clientX-or.left+document.getElementById("fb-outer").scrollLeft+12)+"px";
+  tt.style.top=Math.max(2,e.clientY-or.top-40)+"px";
+}
+function hideTip(){document.getElementById("tooltip").style.display="none";}
+
+function newQuizRound(){
+  const ch=CHORDS[CHNAMES[chordIdx]];
+  const n=ch.i.length;
+  invIdx=Math.floor(Math.random()*Math.min(n,4));
+  buildInvSeg();draw();
+  quizAnswer=INV_NAMES[invIdx];
+  document.getElementById("quiz-q").textContent="This voicing is one of the inversions of "+ROOTS[rootIdx]+" "+CHNAMES[chordIdx]+" — which one? (bass note ringed in gold)";
+  document.getElementById("quiz-feedback").textContent="";
+  const opts=INV_NAMES.slice(0,n).sort(()=>Math.random()-.5);
+  const od=document.getElementById("quiz-opts");od.innerHTML="";
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.style.cssText="font-size:13px;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500;background:#303055;color:#d0d0f0;border:1px solid #505070";
+    b.textContent=o;
+    b.onmouseenter=()=>{b.style.background="#3a3a65";};
+    b.onmouseleave=()=>{if(!b.disabled)b.style.background="#303055";};
+    b.onclick=()=>{
+      const ok=o===quizAnswer;ok?quizScore.r++:quizScore.w++;
+      document.getElementById("quiz-feedback").style.color=ok?"#4ade80":"#f43f5e";
+      document.getElementById("quiz-feedback").textContent=ok?"✓ Correct — that's the "+quizAnswer:"✗ That's actually the "+quizAnswer;
+      const t=quizScore.r+quizScore.w;
+      document.getElementById("quiz-score").textContent=quizScore.r+"/"+t+" correct ("+Math.round(100*quizScore.r/t)+"%)";
+      od.querySelectorAll("button").forEach(btn=>{
+        btn.disabled=true;
+        if(btn.textContent===quizAnswer){btn.style.background="#14532d";btn.style.color="#4ade80";}
+        else if(btn.textContent===o&&!ok){btn.style.background="#450a0a";btn.style.color="#f43f5e";}
+      });
+      const next=document.createElement("button");
+      next.textContent="Next voicing →";
+      next.style.cssText="font-size:12px;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;background:#1d4ed8;color:#fff;border:1px solid #3b6ef0;margin-top:8px";
+      next.onclick=()=>{ rootIdx=Math.floor(Math.random()*12); buildSegs(); newQuizRound(); };
+      document.getElementById("quiz-feedback").appendChild(document.createElement("br"));
+      document.getElementById("quiz-feedback").appendChild(next);
+    };
+    od.appendChild(b);
+  });
+}
+
+document.getElementById("unlock-btn").addEventListener("click",initAudio);
+buildSegs();buildInvSeg();buildActionRow();draw();
+</script>
+</body>
+</html>

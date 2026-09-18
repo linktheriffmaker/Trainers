@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Trainers</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background:#1a1a2e; color:#e8e8f0; font-family:-apple-system,BlinkMacSystemFont,sans-serif; min-height:100vh; }
+  a { color: inherit; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 40px 20px 60px; }
+  .eyebrow { font-size:11px; color:#9090b0; text-transform:uppercase; letter-spacing:.12em; font-weight:600; margin-bottom:10px; }
+  h1 { font-size: 30px; font-weight: 800; margin-bottom: 8px; letter-spacing:-.01em; }
+  .sub { font-size: 14px; color:#a0a0c0; margin-bottom: 32px; max-width: 560px; line-height:1.5; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .card { display:flex; flex-direction:column; gap:10px; background:#252540; border:1px solid #404060; border-radius: 12px; padding: 18px; text-decoration:none; transition: border-color .15s ease, transform .15s ease, background .15s ease; }
+  .card:hover { border-color: #6360f0; background:#2a2a4d; transform: translateY(-2px); }
+  .icon { width: 40px; height: 40px; border-radius: 10px; display:flex; align-items:center; justify-content:center; font-size: 19px; flex-shrink:0; }
+  .card h2 { font-size: 15px; font-weight: 700; margin: 0; }
+  .card p { font-size: 12.5px; color: #9090b0; line-height:1.45; margin:0; }
+  .tag-row { display:flex; gap:6px; flex-wrap:wrap; margin-top: 2px; }
+  .tag { font-size: 10px; font-weight:700; padding: 3px 8px; border-radius: 20px; text-transform:uppercase; letter-spacing:.05em; }
+  footer { margin-top: 40px; font-size: 12px; color: #60607a; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Practice Suite</div>
+  <h1>🎹 Piano Trainers</h1>
+  <div class="sub">The same practice tools as the guitar suite, rebuilt around a keyboard. Pick a trainer below — your place is saved in nothing, so just dive in.</div>
+
+  <div class="grid">
+
+    <a class="card" href="scales.html">
+      <div class="icon" style="background:rgba(79,70,229,0.18);color:#818cf8">🪜</div>
+      <h2>Scale Trainer</h2>
+      <p>Thirteen scales highlighted directly on a two-octave keyboard, with degree/note labels and a quiz mode.</p>
+      <div class="tag-row"><span class="tag" style="background:rgba(79,70,229,0.18);color:#a5b4fc">Foundation</span></div>
+    </a>
+
+    <a class="card" href="arpeggios.html">
+      <div class="icon" style="background:rgba(29,78,216,0.18);color:#60a5fa">♪</div>
+      <h2>Arpeggio Trainer</h2>
+      <p>Sixteen chord qualities from triads to 9ths, played and highlighted key-by-key with a degree quiz.</p>
+      <div class="tag-row"><span class="tag" style="background:rgba(96,165,250,0.16);color:#93c5fd">Keys</span></div>
+    </a>
+
+    <a class="card" href="inversions.html">
+      <div class="icon" style="background:rgba(180,83,9,0.18);color:#fbbf24">🔄</div>
+      <h2>Chord Inversions Trainer</h2>
+      <p>Root position through 3rd inversion for 14 chord qualities, with the bass note ringed on the keyboard.</p>
+      <div class="tag-row"><span class="tag" style="background:rgba(251,191,36,0.16);color:#fcd34d">Bass Line</span></div>
+    </a>
+
+    <a class="card" href="chords.html">
+      <div class="icon" style="background:rgba(45,212,191,0.16);color:#2dd4bf">🎹</div>
+      <h2>Style Chord Trainer</h2>
+      <p>The same four genres as the guitar suite, voiced for piano — tap any card to hear and see it on the keys.</p>
+      <div class="tag-row"><span class="tag" style="background:rgba(244,114,182,0.16);color:#f9a8d4">Lofi</span><span class="tag" style="background:rgba(244,114,182,0.16);color:#f9a8d4">City Pop</span><span class="tag" style="background:rgba(244,114,182,0.16);color:#f9a8d4">Trip Hop</span><span class="tag" style="background:rgba(244,114,182,0.16);color:#f9a8d4">Big Beat</span></div>
+    </a>
+
+    <a class="card" href="intervals.html">
+      <div class="icon" style="background:rgba(99,102,241,0.18);color:#a5b4fc">🎧</div>
+      <h2>Interval &amp; Harmonic Trainer</h2>
+      <p>A metronome-driven ear trainer that calls out scale-degree intervals and lights up the note on a keyboard.</p>
+      <div class="tag-row"><span class="tag" style="background:rgba(99,102,241,0.18);color:#a5b4fc">Ear Training</span></div>
+    </a>
+
+    <a class="card" href="sight-reading.html">
+      <div class="icon" style="background:rgba(244,63,94,0.16);color:#fb7185">🎼</div>
+      <h2>Sight Reading Trainer</h2>
+      <p>Scrolling notation with a genuine Grand Staff mode — treble melody over a held left-hand bass note.</p>
+      <div class="tag-row"><span class="tag" style="background:rgba(244,63,94,0.16);color:#fda4af">Notation</span></div>
+    </a>
+
+  </div>
+
+  <footer>Single-file HTML tools — open any page directly, or navigate between them from the top bar.</footer>
+</div>
+</body>
+</html>
