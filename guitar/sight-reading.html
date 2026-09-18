@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sight Reading Trainer</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; background:#1a1a2e; color:#e8e8f0; font-family:-apple-system,BlinkMacSystemFont,sans-serif; }
+    .scroller::-webkit-scrollbar { height: 3px; }
+    .scroller::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+    #app {
+      --bg:#1a1a2e; --panel:#252540; --border:#404060; --text:#e8e8f0; --label:#9090b0;
+      --info:#50506a; --seg-off-bg:#252540; --seg-off-border:#404060; --seg-off-color:#c0c0e0;
+      --input-bg:#1a1a2e;
+    }
+    #app.light {
+      --bg:#f0ece4; --panel:#ffffff; --border:#dddddd; --text:#1a1a2e; --label:#8a8270;
+      --info:#b0a696; --seg-off-bg:#ffffff; --seg-off-border:#ccccdd; --seg-off-color:#444466;
+      --input-bg:#ffffff;
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#1a1a2e">
+<div style="background:#1a1a2e;border-bottom:1px solid #2a2a45;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:1000;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+  <a href="index.html" style="display:flex;align-items:center;gap:7px;text-decoration:none;color:#e8e8f0;font-weight:700;font-size:14px;flex-shrink:0">
+    <span style="font-size:16px;line-height:1">&#127928;</span><span>Guitar Trainers</span>
+  </a>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <a href="scales.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Scales</a>
+    <a href="arpeggios.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Arpeggios</a>
+    <a href="inversions.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Inversions</a>
+    <a href="chords.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Style Chords</a>
+    <a href="intervals.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Intervals</a>
+    <a href="sight-reading.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:700;white-space:nowrap;background:#4f46e5;color:#ffffff;border:1px solid #6360f0;">Sight Reading</a>
+  </div>
+</div>
+<div id="root"></div>
+
+<script type="text/babel">
+
+const chromatic = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
+
+const scales = {
+  Major: [0,2,4,5,7,9,11],
+  "Natural Minor": [0,2,3,5,7,8,10],
+  "Harmonic Minor": [0,2,3,5,7,8,11],
+  "Melodic Minor": [0,2,3,5,7,9,11],
+  Dominant: [0,2,4,5,7,9,10],
+};
+
+const NOTE_VALUES = {
+  Quarter: 1,
+  Eighth: 0.5,
+  "Quarter Triplet": 2/3,
+  "Eighth Triplet": 1/3,
+  Rest: 1,
+};
+
+const CLEFS = {
+  Treble: { glyph: "𝄞", range: [60,81] },
+  Bass: { glyph: "𝄢", range: [36,60] },
+};
+
+const KEY_SIGNATURES = {
+  C: [],
+  G: ["F#"],
+  D: ["F#","C#"],
+  A: ["F#","C#","G#"],
+  E: ["F#","C#","G#","D#"],
+  F: ["Bb"],
+  Bb: ["Bb","Eb"],
+  Eb: ["Bb","Eb","Ab"],
+};
+
+// Y-position for a key-signature accidental, derived from the SAME chromatic
+// mapping used for actual notes (STAFF_Y) — not real staff-notation spacing,
+// which this simplified renderer doesn't use. This keeps the accidental's
+// height consistent with where a real note of that letter would be drawn.
+const LETTER_PC = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
+function accidentalMidi(letter, range){
+  const pc = LETTER_PC[letter];
+  const mid = (range[0] + range[1]) / 2;
+  let best = null, bestDist = Infinity;
+  for(let m = range[0]-12; m <= range[1]+12; m++){
+    if(((m % 12) + 12) % 12 === pc){
+      const d = Math.abs(m - mid);
+      if(d < bestDist){ bestDist = d; best = m; }
+    }
+  }
+  return best;
+}
+
+const DIFFICULTY_PRESETS = {
+  Beginner: { noteValues:["Quarter"], bpm:60, beatsPerBar:4 },
+  Intermediate: { noteValues:["Quarter","Eighth"], bpm:80, beatsPerBar:4 },
+  Advanced: { noteValues:["Quarter","Eighth","Quarter Triplet","Eighth Triplet"], bpm:100, beatsPerBar:4 }
+};
+
+const STAFF_SCALE = 1.35;
+const STAFF_Y = (midi) => (90 - (midi - 60) * 3) * STAFF_SCALE;
+
+function App(){
+  const [keyRoot, setKeyRoot] = React.useState("C");
+  const [scaleName, setScaleName] = React.useState("Major");
+  const [clef, setClef] = React.useState("Treble");
+  const [bpm, setBpm] = React.useState(60);
+  const [beatsPerBar, setBeatsPerBar] = React.useState(4);
+  const [noteValues, setNoteValues] = React.useState(["Quarter"]);
+  const [bars, setBars] = React.useState([]);
+  const [isRunning, setIsRunning] = React.useState(false);
+  const [volume, setVolume] = React.useState(0.2);
+  const [difficulty, setDifficulty] = React.useState("Beginner");
+  const [showNames, setShowNames] = React.useState(false);
+  const [isDark, setIsDark] = React.useState(true);
+
+  const audioCtxRef = React.useRef(null);
+  const timerRef = React.useRef(null);
+  const beatRef = React.useRef(0);
+
+  const allowedNotes = () => {
+    const tonic = chromatic.indexOf(keyRoot);
+    const scale = scales[scaleName];
+    const [low, high] = CLEFS[clef].range;
+    return Array.from({length: high-low},(_,i)=>low+i).filter(m =>
+      scale.includes((m - tonic + 12) % 12)
+    );
+  };
+
+  const playClick = (down) => {
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = down ? 1500 : 900;
+    gain.gain.value = volume;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.05);
+  };
+
+  const generateBar = () => {
+    if (!noteValues.length) return;
+    const pool = allowedNotes();
+    if (!pool.length) return;
+
+    let remaining = beatsPerBar;
+    const notes = [];
+
+    while (remaining > 0.01){
+      const valueName = noteValues[Math.floor(Math.random()*noteValues.length)];
+      const dur = NOTE_VALUES[valueName];
+      if (!dur || dur > remaining) continue;
+
+      if (valueName === "Rest"){
+        notes.push({rest:true, dur});
+        remaining -= dur;
+        continue;
+      }
+
+      const count = valueName.includes("Triplet") ? 3 : 1;
+      const group = Array.from({length:count}).map(
+        ()=>pool[Math.floor(Math.random()*pool.length)]
+      );
+
+      notes.push({valueName, dur, group});
+      remaining -= dur;
+    }
+
+    setBars(b=>[...b, {notes, x:800}]);
+  };
+
+  const tick = () => {
+    const down = beatRef.current === 0;
+    playClick(down);
+    if (down) generateBar();
+
+    setBars(b=>b.map(bar=>({...bar, x:bar.x-40})).filter(bar=>bar.x>80));
+    beatRef.current = (beatRef.current+1) % beatsPerBar;
+  };
+
+  React.useEffect(()=>{
+    if (!isRunning) return;
+    if (!audioCtxRef.current){
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    timerRef.current = setInterval(tick, (60/bpm)*1000);
+    return ()=>clearInterval(timerRef.current);
+  },[isRunning,bpm,beatsPerBar,keyRoot,scaleName,clef,noteValues,volume]);
+
+  const segStyle = (isOn) => isOn
+    ? {fontSize:"12px",padding:"5px 11px",cursor:"pointer",borderRadius:"7px",border:"1px solid #6360f0",background:"#4f46e5",color:"#ffffff",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0,margin:0}
+    : {fontSize:"12px",padding:"5px 11px",cursor:"pointer",borderRadius:"7px",border:"1px solid var(--seg-off-border)",background:"var(--seg-off-bg)",color:"var(--seg-off-color)",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0,margin:0};
+
+  const Row = ({label, children}) => (
+    <div style={{display:"flex",flexWrap:"wrap",gap:"6px",alignItems:"center",marginBottom:"10px"}}>
+      <span style={{fontSize:"11px",color:"var(--label)",textTransform:"uppercase",letterSpacing:".07em",flexShrink:0,minWidth:"52px"}}>{label}</span>
+      <div className="scroller" style={{display:"flex",gap:"5px",overflowX:"auto",flex:1}}>{children}</div>
+    </div>
+  );
+
+  return (
+    <div id="app" className={isDark?"":"light"} style={{background:"var(--bg)",color:"var(--text)",padding:"14px",fontFamily:"-apple-system,BlinkMacSystemFont,sans-serif",minHeight:"100vh",transition:"background .15s,color .15s"}}>
+
+      <Row label="Key">
+        {chromatic.map(k=>
+          <button key={k} style={segStyle(k===keyRoot)} onClick={()=>setKeyRoot(k)}>{k}</button>
+        )}
+      </Row>
+
+      <Row label="Scale">
+        {Object.keys(scales).map(s=>
+          <button key={s} style={segStyle(s===scaleName)} onClick={()=>setScaleName(s)}>{s}</button>
+        )}
+      </Row>
+
+      <Row label="Clef">
+        {Object.keys(CLEFS).map(c=>
+          <button key={c} style={segStyle(c===clef)} onClick={()=>setClef(c)}>{c}</button>
+        )}
+      </Row>
+
+      <Row label="Time">
+        {[2,3,4,5,6,7].map(b=>
+          <button key={b} style={segStyle(b===beatsPerBar)} onClick={()=>{beatRef.current=0;setBeatsPerBar(b);}}>{b}/4</button>
+        )}
+      </Row>
+
+      <Row label="Level">
+        {Object.keys(DIFFICULTY_PRESETS).map(d=>
+          <button key={d} style={segStyle(d===difficulty)} onClick={()=>{
+            setDifficulty(d);
+            setNoteValues(DIFFICULTY_PRESETS[d].noteValues);
+            setBpm(DIFFICULTY_PRESETS[d].bpm);
+            setBeatsPerBar(DIFFICULTY_PRESETS[d].beatsPerBar);
+            beatRef.current=0;
+          }}>{d}</button>
+        )}
+      </Row>
+
+      <div style={{display:"flex",alignItems:"center",gap:"14px",padding:"9px 12px",marginBottom:"12px",borderRadius:"8px",background:"var(--panel)",border:"1px solid var(--border)",flexWrap:"wrap"}}>
+        <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+          <span style={{fontSize:"11px",color:"var(--label)",textTransform:"uppercase",letterSpacing:".07em"}}>BPM</span>
+          <input type="number" value={bpm} onChange={e=>setBpm(+e.target.value)}
+            style={{width:"56px",fontSize:"13px",padding:"4px 6px",borderRadius:"6px",border:"1px solid var(--border)",background:"var(--input-bg)",color:"var(--text)",margin:0}} />
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+          <span style={{fontSize:"11px",color:"var(--label)",textTransform:"uppercase",letterSpacing:".07em",flexShrink:0}}>Volume</span>
+          <input type="range" min="0" max="0.5" step="0.01" value={volume}
+            onChange={e=>setVolume(+e.target.value)} style={{width:"110px",margin:0}} />
+        </div>
+      </div>
+
+      <div style={{display:"flex",flexWrap:"wrap",gap:"6px",marginBottom:"12px"}}>
+        <button onClick={()=>setIsRunning(true)} style={{fontSize:"12px",padding:"6px 13px",borderRadius:"7px",border:"1px solid #22c55e",background:"#166534",color:"#fff",fontWeight:600,margin:0}}>▶ Start</button>
+        <button onClick={()=>setIsRunning(false)} style={{fontSize:"12px",padding:"6px 13px",borderRadius:"7px",border:"1px solid #ef4444",background:"#7f1d1d",color:"#fff",fontWeight:600,margin:0}}>■ Stop</button>
+        <button onClick={()=>setShowNames(v=>!v)} style={showNames
+            ? {fontSize:"12px",padding:"6px 13px",borderRadius:"7px",border:"1px solid #9f67fa",background:"#6d28d9",color:"#fff",fontWeight:600,margin:0}
+            : {fontSize:"12px",padding:"6px 13px",borderRadius:"7px",border:"1px solid #505070",background:"#303050",color:"#c0c0e0",fontWeight:500,margin:0}}>♩ Names</button>
+        <button onClick={()=>setIsDark(v=>!v)} style={{fontSize:"12px",padding:"6px 13px",borderRadius:"7px",border:"1px solid #6b7280",background:"#374151",color:"#fff",fontWeight:500,margin:0}}>{isDark?"☀ Light":"🌙 Dark"}</button>
+      </div>
+
+      <div style={{overflowX:"auto",overflowY:"hidden",borderRadius:"10px"}}>
+        <svg viewBox={`0 0 800 ${140*STAFF_SCALE}`} style={{width:"100%",minWidth:"600px",background:"white",borderRadius:"10px",display:"block"}}>
+        {[50,60,70,80,90].map(y=>
+          <line key={y} x1="0" y1={y*STAFF_SCALE} x2="800" y2={y*STAFF_SCALE} stroke="black"/>
+        )}
+        <text x="10" y={95*STAFF_SCALE} fontSize={70*STAFF_SCALE}>{CLEFS[clef].glyph}</text>
+
+        {KEY_SIGNATURES[keyRoot] && KEY_SIGNATURES[keyRoot].map((acc,i)=>{
+          const letter = acc.charAt(0);
+          const y = STAFF_Y(accidentalMidi(letter, CLEFS[clef].range));
+          return (
+            <text key={i} x={54+i*16} y={y} fontSize={20*STAFF_SCALE} textAnchor="middle" dominantBaseline="middle" fill="black">
+              {acc.includes("#")?"♯":"♭"}
+            </text>
+          );
+        })}
+
+        {bars.map((bar,bi)=>(
+          <g key={bi} transform={`translate(${bar.x},0)`}>
+            {bar.notes.map((n,i)=>(
+              <g key={i} transform={`translate(${120+i*80},0)`}>
+                {!n.rest && n.group.map((m,j)=>(
+                  <g key={j} transform={`translate(${j*18},0)`}>
+                    <ellipse cx="0" cy={STAFF_Y(m)} rx={6*STAFF_SCALE} ry={4*STAFF_SCALE} fill="black"/>
+                    <line x1="6" y1={STAFF_Y(m)} x2="6" y2={STAFF_Y(m)-30*STAFF_SCALE} stroke="black"/>
+                    {showNames &&
+                      <text x="0" y={STAFF_Y(m)+16*STAFF_SCALE} fontSize={9*STAFF_SCALE} fontWeight="700" textAnchor="middle" fill="#555">
+                        {chromatic[m%12]}
+                      </text>
+                    }
+                  </g>
+                ))}
+              </g>
+            ))}
+          </g>
+        ))}
+        </svg>
+      </div>
+      <div style={{fontSize:"11px",color:"var(--info)",marginTop:"8px",minHeight:"14px"}}>
+        {keyRoot} {scaleName} · {clef} clef · {beatsPerBar}/4 · {difficulty}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style Chords — Lofi, City Pop, Trip Hop, Big Beat & Fingerstyle Folk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,500&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0">
+<div style="background:#1a1a2e;border-bottom:1px solid #2a2a45;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:1000;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+  <a href="index.html" style="display:flex;align-items:center;gap:7px;text-decoration:none;color:#e8e8f0;font-weight:700;font-size:14px;flex-shrink:0">
+    <span style="font-size:16px;line-height:1">&#127928;</span><span>Guitar Trainers</span>
+  </a>
+  <div class="scroller" style="display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto"><a href="scales.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Scales</a><a href="arpeggios.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Arpeggios</a><a href="inversions.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Inversions</a><a href="chords.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:700;white-space:nowrap;background:#4f46e5;color:#ffffff;border:1px solid #6360f0;">Style Chords</a><a href="intervals.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Intervals</a><a href="sight-reading.html" style="font-size:12px;padding:6px 13px;border-radius:7px;text-decoration:none;font-family:inherit;font-weight:500;white-space:nowrap;background:transparent;color:#9090b0;border:1px solid #404060;">Sight Reading</a></div>
+</div>
+<div id="app"></div>
+<script>
+(function(){
+
+/* ---------------------------------------------------------
+   DATA — TUNINGS (lofi indie mode only)
+--------------------------------------------------------- */
+var TUNINGS = {
+  standard: {
+    label: 'Standard', notes: 'E A D G B E',
+    freq: [82.41,110.00,146.83,196.00,246.94,329.63],
+    blurb: "The default. Most of this whole style still lives here — the tension comes from chord choice, not the tuning.",
+    chords: [
+      {name:'Cmaj7', frets:'x32000', note:'The unresolved, floating chord these songs live on.'},
+      {name:'Dm7', frets:'xx0211', note:'A soft, minor-key breath — never quite sad, never quite settled.'},
+      {name:'Em7', frets:'022000', note:'Open and hollow, great under a vocal that sits low.'},
+      {name:'Fmaj7', frets:'xx3210', note:'Warmer than a plain F, and no barre needed.'},
+      {name:'G6', frets:'320000', note:'A G that refuses to commit — used like a color, not a landing.'},
+      {name:'Cadd9', frets:'x32030', note:'The signature "ringing" open-string indie voicing.'},
+      {name:'Dsus2', frets:'xx0230', note:'Suspended and airy — a held breath before the chord resolves.'},
+      {name:'Dsus4', frets:'xx0233', note:'Same idea, pulled the other direction — tension leaning up.'},
+      {name:'Asus2', frets:'x02200', note:'A gentle, open A with no clear major or minor color.'},
+      {name:'Gadd9', frets:'3x0203', note:'A shimmering, wide-interval G used to open up a verse.'},
+      {name:'Bm7b5', frets:'x23231', note:'The one chromatic surprise — a passing chord that tilts sideways.'},
+      {name:'Em(add9)', frets:'024000', note:'Em with a bright top note — the classic dream-pop color.'}
+    ]
+  },
+  dropD: {
+    label: 'Drop D', notes: 'D A D G B E',
+    freq: [73.42,110.00,146.83,196.00,246.94,329.63],
+    blurb: "Low string down a whole step. Turns the bottom three strings into one-finger power chords, and gives every open D chord a heavier drone underneath.",
+    chords: [
+      {name:'D', frets:'000232', note:'The open, full-ring drop D chord — instant droney low end.'},
+      {name:'Dsus4', frets:'000233', note:'One-fret shift for a suspended lean.'},
+      {name:'Dm', frets:'000231', note:'A one-finger move from D into the minor.'},
+      {name:'F5', frets:'333xxx', note:'One-finger power chord, barring the bottom two strings.'},
+      {name:'G5', frets:'555xxx', note:'Same shape, moved up — the whole point of drop D.'},
+      {name:'A5', frets:'777xxx', note:'Higher still — power chords with a single finger, anywhere on the neck.'}
+    ]
+  },
+  lenker: {
+    label: 'High Drop D', notes: 'E A D G B D',
+    freq: [82.41,110.00,146.83,196.00,246.94,293.66],
+    blurb: "Adrianne Lenker's own move: instead of dropping the low E, she drops the high E down to D. Everything stays familiar in the left hand \u2014 but familiar shapes ring out completely new colors. She's used it on \u201c12,000 Lines\u201d and \u201cHeavy Bend.\u201d",
+    chords: [
+      {name:'G/D (open)', frets:'xx0000', note:'Just let the open strings ring — this is the whole trick.'},
+      {name:'G7 (recolored)', frets:'320003', note:'The familiar open-G shape — the top string now rings a 7th instead of the octave.'},
+      {name:'Em7 (recolored)', frets:'022000', note:'The classic Em shape, quietly turned into a seventh chord.'},
+      {name:'Cmaj9 (recolored)', frets:'x32000', note:'A plain C shape gains a floating 9th on top for free.'},
+      {name:'D5 (open)', frets:'xx0230', note:'Root and 5th, doubled and ringing — pure drone.'},
+      {name:'A(sus, open)', frets:'x02200', note:'An open A shape with no 3rd — the dropped top string keeps it unresolved.'}
+    ]
+  },
+  openD: {
+    label: 'Open D', notes: 'D A D F# A D',
+    freq: [73.42,110.00,146.83,185.00,220.00,293.66],
+    blurb: "Strum it open and you're already playing a D major chord. Everything else is a barre — one finger, laid flat, moved up and down the neck.",
+    chords: [
+      {name:'D (open)', frets:'000000', note:'Just strum it — every open string is already a D major chord.'},
+      {name:'Em', frets:'222122', note:'A full barre with one finger pulled back a fret for the minor 3rd.'},
+      {name:'G', frets:'555555', note:'Full barre, 5th fret — the IV chord, no fingers to spare.'},
+      {name:'A', frets:'777777', note:'Full barre, 7th fret — the V chord.'},
+      {name:'F#m', frets:'444344', note:'Same pullback trick for a minor, higher up.'},
+      {name:'Bm', frets:'999899', note:'Same trick again, further up the neck — the vi chord.'}
+    ]
+  },
+  openG: {
+    label: 'Open G', notes: 'D G D G B D',
+    freq: [73.42,98.00,146.83,196.00,246.94,293.66],
+    blurb: "The open strings already ring a G major chord. Barre chords move that same shape up the neck — pull one finger back a fret and major turns to minor.",
+    chords: [
+      {name:'G (open)', frets:'000000', note:'Every open string rings a G major chord.'},
+      {name:'Am', frets:'222122', note:'The pullback trick, low on the neck.'},
+      {name:'Bm', frets:'444344', note:'Barre with one finger pulled back for the minor 3rd.'},
+      {name:'C', frets:'555555', note:'Full barre, 5th fret — the IV chord.'},
+      {name:'D', frets:'777777', note:'Full barre, 7th fret — the V chord.'},
+      {name:'Em', frets:'999899', note:'Same trick, higher up — the vi chord.'}
+    ]
+  },
+  dadgad: {
+    label: 'DADGAD', notes: 'D A D G A D',
+    freq: [73.42,110.00,146.83,196.00,220.00,293.66],
+    blurb: "A modal, stacked-4ths tuning — the open strings are neither major nor minor. That ambiguity is the entire appeal for fingerstyle indie writing.",
+    chords: [
+      {name:'Dsus4 (open)', frets:'000000', note:'No major or minor here, just open ambiguity — the whole point of DADGAD.'},
+      {name:'Esus4', frets:'222222', note:'Full barre, 2nd fret — same suspended color, moved up.'},
+      {name:'Gsus4', frets:'555555', note:'Full barre, 5th fret.'},
+      {name:'Asus4', frets:'777777', note:'Full barre, 7th fret \u2014 as far as you\u2019ll usually need to go.'}
+    ]
+  }
+};
+var TUNING_ORDER = ['standard','dropD','lenker','openD','openG','dadgad'];
+
+var CITYPOP = {
+  freq: [82.41,110.00,146.83,196.00,246.94,329.63],
+  chords: [
+    {name:'Cmaj7', frets:'x32000', note:'The "I" chord — smooth, never a plain major triad.'},
+    {name:'Dm7', frets:'xx0211', note:'The "ii" — sets up almost every turnaround in this style.'},
+    {name:'Em7', frets:'022000', note:'The "iii" — a softer, jazzier substitute for a plain Em.'},
+    {name:'Fmaj7', frets:'xx3210', note:'The "IV" — lush and a little cinematic.'},
+    {name:'G7', frets:'320001', note:'The dominant that actually wants to resolve — rare and effective here.'},
+    {name:'Am7', frets:'x02010', note:'The relative minor, kept soft rather than sad.'},
+    {name:'D7', frets:'xx0212', note:'Secondary dominant — pulls hard into G, common mid-phrase.'},
+    {name:'E7', frets:'020100', note:'Secondary dominant into Am — the classic "turn the corner" chord.'},
+    {name:'A7', frets:'x02020', note:'Secondary dominant into Dm — keeps a ii–V chain moving.'},
+    {name:'B7', frets:'x21202', note:'Secondary dominant into Em — stacks with A7 and E7 for long chains.'},
+    {name:'Bm7b5', frets:'x23231', note:'The half-diminished "vii" — the jazziest chord in the set.'},
+    {name:'Cadd9', frets:'x32030', note:'A brighter substitute for Cmaj7 in a lighter, funkier passage.'}
+  ]
+};
+
+var LOFI_INVERSIONS = [
+  {name:'G/B', frets:'x20003', note:'2nd chord in a I–vi walkdown — bass steps down from C to B to A.'},
+  {name:'D/F#', frets:'200232', note:'Connects G to Em with a smooth descending bass line: G, F#, E.'},
+  {name:'C/G', frets:'332010', note:'Keeps a G pedal ringing underneath a C chord above it.'},
+  {name:'Am7/G', frets:'302210', note:'Am with a G in the bass — the classic descending fingerstyle move.'},
+  {name:'Dm7/C', frets:'x30211', note:'Bass steps down by a whole tone instead of jumping straight to Dm.'}
+];
+
+var CITYPOP_INVERSIONS = [
+  {name:'C/E', frets:'032010', note:'1st inversion — the standard ascending-bass move into a I chord.'},
+  {name:'Dm7/C', frets:'x30211', note:'The ii7 chord with its 7th in the bass — smooth step down from a I chord.'},
+  {name:'G7/B', frets:'x20001', note:'The V7 with its leading tone in the bass, pulling hard into C.'},
+  {name:'Am7/G', frets:'302210', note:'A descending step on the way from Am back toward a G-rooted chord.'},
+  {name:'Bbmaj7/D', frets:'xx0365', note:'A denser fusion voicing — the bVII major 7th over its own 3rd in the bass.'}
+];
+
+var TRIPHOP_INVERSIONS = [
+  {name:'G/B', frets:'x20003', note:'Keeps the open top string ringing while the bass leans up toward Em — a pedal-tone trick borrowed from downtempo soul.'},
+  {name:'D/F#', frets:'200232', note:'A stepping bass line from G down through F# into Em — smooth and cinematic.'},
+  {name:'Am7/G', frets:'302210', note:'A descending bass step, common under a held Am7 in a slow loop.'},
+  {name:'F/C', frets:'x33210', note:'Keeps a C pedal ringing under an F chord above it — good for a sparse, bass-driven verse.'}
+];
+
+var BIGBEAT_INVERSIONS = [
+  {name:'C/G', frets:'332010', note:'A pedal G ringing under a C chord — a rare smooth moment between riffs.'},
+  {name:'F/C', frets:'x33210', note:'Bass holds on C while the chord above shifts — a common breakbeat-rock turnaround.'},
+  {name:'Dm7/C', frets:'x30211', note:'Bass steps down by a whole tone under a held Dm7 — used to link a riff into a chorus.'},
+  {name:'G/B', frets:'x20003', note:'Keeps a ringing top string while the bass climbs toward the next power chord.'}
+];
+
+var JAZZ_FUSION = [
+  {name:'Am7 (jazz shape)', frets:'5x555x', note:'A compact, no-open-strings voicing — moveable anywhere on the neck.'},
+  {name:'Dm7 (jazz shape)', frets:'x57565', note:'Same idea, rooted on the A string — pulled straight from a real Plastic Love chart.'},
+  {name:'Bbmaj7 (fusion)', frets:'6x776x', note:'The 3rd is left out on purpose — classic jazz-comping economy, the melody supplies it.'},
+  {name:'A7b9', frets:'x02323', note:'The altered dominant that gives Plastic Love its bite — straight from the original chart.'},
+  {name:'C9', frets:'x32333', note:'The standard funk/fusion 9th-chord stab — Takanaka-style rhythm comping.'},
+  {name:'Fmaj7#11', frets:'xx3200', note:'A lydian color chord — the 5th dropped in favor of the floating #11.'}
+];
+
+var TRIPHOP = {
+  freq: [82.41,110.00,146.83,196.00,246.94,329.63],
+  chords: [
+    {name:'Aadd9', frets:'x02420', note:'The suspended, ringing chord under Massive Attack\u2019s "Teardrop" \u2014 more air than a plain A.'},
+    {name:'Fmaj7', frets:'xx3210', note:'Warm and unresolved \u2014 the color chord under most trip hop verses.'},
+    {name:'G', frets:'320003', note:'A wide, ringing open G used more as a drone than a landing chord.'},
+    {name:'Dm7', frets:'xx0211', note:'A soft minor breath \u2014 never quite settles.'},
+    {name:'Am7', frets:'x02010', note:'The default minor-key resting chord \u2014 hollow, unforced.'},
+    {name:'Ebm (barre)', frets:'x68876', note:'A dark, barred minor a tritone from A \u2014 the key center under Portishead\u2019s "Glory Box."'},
+    {name:'B7', frets:'x21202', note:'The one dominant chord that actually wants to resolve \u2014 used sparingly, for tension.'},
+    {name:'Dsus2', frets:'xx0230', note:'A suspended, ambient float \u2014 good under a sparse, half-empty verse.'}
+  ]
+};
+
+var BIGBEAT = {
+  freq: [82.41,110.00,146.83,196.00,246.94,329.63],
+  chords: [
+    {name:'E5', frets:'022xxx', note:'The root power chord \u2014 the whole breakbeat/rock crossover runs on these.'},
+    {name:'G5', frets:'355xxx', note:'Same one-finger-plus-barre shape, moved up the neck.'},
+    {name:'A5', frets:'577xxx', note:'Higher still \u2014 power chords transpose anywhere with one shape.'},
+    {name:'Bb5', frets:'688xxx', note:'One fret shy of the octave \u2014 a favorite half-step riff move.'},
+    {name:'Esus4', frets:'022200', note:'Open and ringing \u2014 adds grit without picking a major or minor side.'},
+    {name:'F#m (barre)', frets:'244222', note:'A minor stab dropped into an otherwise all-power-chord riff for contrast.'},
+    {name:'Gadd9', frets:'3x0203', note:'A bright, wide-interval chord used to break up the distortion for a hook.'},
+    {name:'E7#9 ("Hendrix chord")', frets:'x7678x', note:'The gritty, dissonant stab \u2014 a classic tension chord in distorted riffing.'}
+  ]
+};
+
+var LENKER_INVERSIONS = [
+  {name:'C/G', frets:'x32010', note:'The exact move behind Big Thief\u2019s "Change" \u2014 a G held in the bass while a C shape sits on top.'},
+  {name:'D/A', frets:'x00232', note:'Same trick a step up \u2014 the bass climbs by a fourth while the chord barely moves.'},
+  {name:'G/B', frets:'x20003', note:'A common connector between a G-based verse and whatever leans toward Em next.'},
+  {name:'Am/G', frets:'302210', note:'A descending step down from Am \u2014 gentle, stepwise bass motion under a held shape.'}
+];
+
+var LENKER = {
+  freq: [82.41,110.00,146.83,196.00,246.94,329.63],
+  chords: [
+    {name:'G', frets:'320003', note:'The home base \u2014 bright and open, rarely left behind for long.'},
+    {name:'Cadd9', frets:'x32030', note:'The ringing top string that defines a lot of this whole aesthetic.'},
+    {name:'Dsus2', frets:'xx0230', note:'Suspended and unresolved \u2014 lets a fingerpicked pattern breathe.'},
+    {name:'Dsus4', frets:'xx0233', note:'Same idea pulled the other way \u2014 tension leaning up instead of down.'},
+    {name:'Em7', frets:'022030', note:'A minor chord that never quite lands \u2014 it just breathes in place.'},
+    {name:'Fmaj7', frets:'xx3210', note:'Open and warm \u2014 avoids the full F barre entirely.'},
+    {name:'Asus4', frets:'x02230', note:'Suspended a fourth up, only resolving down to A when the line wants it to.'},
+    {name:'Am7', frets:'x02010', note:'Hollow and unforced \u2014 the default resting point in a minor-leaning verse.'}
+  ]
+};
+
+var MODES = {
+  lofi: {
+    label: 'Lofi Indie',
+    sub: 'mk.gee · Dijon · Yves Tumor · Slowdive',
+    intro: "This world runs on chords that don't fully resolve — major sevenths that hang in the air, suspended chords that never quite land. A lot of it also isn't in standard tuning: pick a tuning below to match how these players actually get their sound.",
+    songs: [
+      {artist:'mk.gee', title:'You Got It', detail:'Capo 3, standard tuning · E · C#m7 · B · Amaj7 · G#m7 · F#m7 · G', tag:'fan-transcribed'},
+      {artist:'Slowdive', title:'When the Sun Hits', detail:'Standard tuning, key of F# minor · built from F#m · D · A · G (order varies by version)', tag:'widely documented'}
+    ],
+    songNote: "I couldn't find reliably verified guitar transcriptions for Dijon or Yves Tumor specifically. Their harmonic vocabulary is reflected in the chord sets above — I didn't want to present unverified song-specific claims as fact.",
+    listening: [
+      {artist:'mk.gee', title:'Rylee & I'},
+      {artist:'mk.gee', title:'DNM'},
+      {artist:'Dijon', title:'Many Times'},
+      {artist:'Dijon', title:'Rodeo Clown'},
+      {artist:'Yves Tumor', title:'Kerosene!'},
+      {artist:'Yves Tumor', title:'Gospel for a New Century'},
+      {artist:'Slowdive', title:'Alison'}
+    ]
+  },
+  citypop: {
+    label: 'City Pop',
+    sub: 'Mariya Takeuchi · Masayoshi Takanaka',
+    intro: "This is guitar written by people who also thought like horn arrangers — jazz-funk harmony with a Tokyo studio sheen. Expect ii–V motion and secondary dominants that pull hard toward the next chord.",
+    songs: [
+      {artist:'Mariya Takeuchi', title:'Plastic Love', detail:'Standard tuning, key of D minor \u00b7 intro: Bbmaj7 \u00b7 Gm9 \u00b7 Eb7 \u00b7 Bbmaj7 \u00b7 Am7 \u00b7 D \u00b7 Gm9 \u00b7 C7b9 \u00b7 Am7 \u00b7 Dm7', tag:'widely documented'}
+    ],
+    songNote: "I couldn't find reliably verified guitar transcriptions for Masayoshi Takanaka's instrumental work specifically — his parts are intricate and mostly undocumented as chord charts. The vocabulary above reflects the style's harmonic language.",
+    listening: [
+      {artist:'Tatsuro Yamashita', title:'Ride on Time'},
+      {artist:'Tatsuro Yamashita', title:'Sparkle'},
+      {artist:'Anri', title:'Remember Summer Days'},
+      {artist:'Taeko Ohnuki', title:'4:00 AM'},
+      {artist:'Toshiki Kadomatsu', title:'Down Town'},
+      {artist:'Masayoshi Takanaka', title:'Blue Lagoon'}
+    ]
+  },
+  triphop: {
+    label: 'Trip Hop',
+    sub: 'Massive Attack · Portishead',
+    intro: "Slow tempos, sampled loops, and minor-key harmony built for smoke and reverb. Most of this catalog started life as samples and turntables rather than played chords — the vocabulary below is guitar-friendly language for that same moody, unresolved sound.",
+    songs: [
+      {artist:'Massive Attack', title:'Teardrop', detail:'Standard tuning, key of A major \u00b7 Aadd9 \u00b7 G \u00b7 D \u00b7 Aadd9 \u00b7 F \u00b7 G \u00b7 Aadd9 (the harpsichord ostinato, emulated on guitar)', tag:'widely documented'},
+      {artist:'Portishead', title:'Glory Box', detail:'Capo 6, using Am \u00b7 Am7 \u00b7 F \u00b7 E7 shapes (sounds as Ebm \u00b7 Ebm7 \u00b7 Db \u00b7 B)', tag:'widely documented'}
+    ],
+    songNote: "Most trip hop was built from samples and turntables, not guitar parts — I couldn't find reliably verified chord transcriptions beyond these two. The vocabulary above reflects the style's harmonic language rather than claiming more song-specific charts.",
+    listening: [
+      {artist:'Massive Attack', title:'Angel'},
+      {artist:'Massive Attack', title:'Unfinished Sympathy'},
+      {artist:'Portishead', title:'Roads'},
+      {artist:'Portishead', title:'Sour Times'},
+      {artist:'Tricky', title:'Aftermath'},
+      {artist:'Morcheeba', title:'Trigger Hippie'},
+      {artist:'Thievery Corporation', title:'Lebanese Blonde'}
+    ]
+  },
+  bigbeat: {
+    label: 'Big Beat',
+    sub: 'Boom Boom Satellites',
+    intro: "Breakbeats collide with distorted guitar here — closer to alternative rock than to programmed dance music. Expect one-finger power chords, open sus chords for grit, and the occasional dissonant stab dropped into a riff for edge.",
+    songs: [
+      {artist:'Boom Boom Satellites', title:'Lay Your Hands on Me', detail:'Key of F major \u00b7 verse: F \u00b7 C \u00b7 Gm \u00b7 Bb \u00b7 bridge: Dm \u00b7 C \u00b7 Gm \u00b7 Bb', tag:'widely documented'}
+    ],
+    songNote: "Boom Boom Satellites blended big beat with alternative-rock guitar, but most of their catalog isn't documented as chord charts beyond this single. The vocabulary above reflects the breakbeat-rock crossover sound more broadly.",
+    listening: [
+      {artist:'Boom Boom Satellites', title:'Kick It Out'},
+      {artist:'Boom Boom Satellites', title:'On the Painted Desert'},
+      {artist:'Boom Boom Satellites', title:'Push Eject'},
+      {artist:'The Prodigy', title:'Firestarter'},
+      {artist:'The Chemical Brothers', title:'Block Rockin\u2019 Beats'},
+      {artist:'Fatboy Slim', title:'Right Here, Right Now'},
+      {artist:'The Crystal Method', title:'Busy Child'}
+    ]
+  },
+  lenker: {
+    label: 'Fingerstyle Folk',
+    sub: 'Adrianne Lenker \u00b7 Big Thief',
+    intro: "Intimate, unhurried fingerpicking built on chords that ring rather than strum \u2014 sus2/sus4/add9 voicings, and slash chords that let the bass walk while the shape above barely moves. For an even more Lenker-specific color, try the High Drop D tuning under Lofi Indie \u2014 it's her own signature move.",
+    songs: [
+      {artist:'Big Thief', title:'Change', detail:'Capo 3, standard tuning \u00b7 G \u00b7 C/G \u00b7 D/A \u00b7 C/G (sounds as Bb \u00b7 Eb/Bb \u00b7 F/C \u00b7 Eb/Bb)', tag:'widely documented'},
+      {artist:'Big Thief', title:'Terminal Paradise', detail:'Standard tuning, key of F major \u00b7 Dm \u00b7 Gm \u00b7 C \u00b7 F', tag:'widely documented'},
+      {artist:'Big Thief', title:'Mary', detail:'Standard tuning, key of D major \u00b7 D \u00b7 G \u00b7 A', tag:'widely documented'}
+    ],
+    songNote: "These three are corroborated across multiple independent chord charts. Beyond them, Lenker's solo work leans heavily on alternate and open tunings that don't always translate to a simple chord name \u2014 the vocabulary above reflects her standard-tuning language rather than claiming more than that.",
+    listening: [
+      {artist:'Big Thief', title:'Paul'},
+      {artist:'Big Thief', title:'Shark Smile'},
+      {artist:'Big Thief', title:'Velvet Ring'},
+      {artist:'Big Thief', title:'Vampire Empire'},
+      {artist:'Big Thief', title:'Simulation Swarm'},
+      {artist:'Adrianne Lenker', title:'Anything'},
+      {artist:'Adrianne Lenker', title:'Ruined'},
+      {artist:'Adrianne Lenker', title:'Not a Lot, Just Forever'}
+    ]
+  }
+};
+
+/* ---------------------------------------------------------
+   AUDIO
+--------------------------------------------------------- */
+var audioCtx = null;
+function ensureAudio(){
+  if(!audioCtx){
+    try{
+      audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    }catch(err){
+      console.error('Web Audio unavailable:', err);
+      return Promise.reject(err);
+    }
+  }
+  if(audioCtx.state === 'suspended'){
+    return audioCtx.resume();
+  }
+  return Promise.resolve();
+}
+function freqForFret(freqs, stringIndex, fret){
+  return freqs[stringIndex] * Math.pow(2, fret/12);
+}
+function pluckNote(freq, when, gainMul){
+  var t = audioCtx.currentTime + when;
+  var osc = audioCtx.createOscillator();
+  var gain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  var g = 0.18 * (gainMul||1);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.linearRampToValueAtTime(g, t+0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t+1.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t+1.5);
+}
+function pitchShiftFactor(){
+  return Math.pow(2, computeCapo()/12);
+}
+function playChord(fretStr, freqs){
+  ensureAudio().then(function(){
+    var chars = fretStr.split('');
+    var stagger = 0;
+    var shift = pitchShiftFactor();
+    for(var i=0;i<6;i++){
+      var c = chars[i];
+      if(c === 'x') continue;
+      var fret = parseInt(c,10);
+      var freq = freqForFret(freqs, i, fret) * shift;
+      pluckNote(freq, stagger, 1 - i*0.05);
+      stagger += 0.035;
+    }
+  }).catch(function(err){ console.error('Playback failed:', err); });
+}
+
+/* ---------------------------------------------------------
+   CHORD DIAGRAM RENDER
+--------------------------------------------------------- */
+function drawDiagram(canvas, fretStr){
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var W = canvas.clientWidth, H = canvas.clientHeight;
+  if(W === 0 || H === 0) return;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  var chars = fretStr.split('');
+  var nums = [], hasOpen = false;
+  chars.forEach(function(c){
+    if(c !== 'x'){
+      var n = parseInt(c,10);
+      nums.push(n);
+      if(n === 0) hasOpen = true;
+    }
+  });
+  var maxFret = nums.length ? Math.max.apply(null, nums) : 0;
+  var nonZero = nums.filter(function(n){ return n > 0; });
+  var minFret = nonZero.length ? Math.min.apply(null, nonZero) : 0;
+  var baseFret = (!hasOpen && minFret > 1) ? minFret : 1;
+  var frets = Math.max(4, maxFret - baseFret + 1);
+
+  var labelPad = baseFret > 1 ? 24 : 0;
+  var pad = 22;
+  var gridW = W - pad*2 - labelPad;
+  var gridH = H - pad*2 - 14;
+  var strings = 6;
+  var sx = pad + labelPad, sy = pad + 14;
+  var stepX = gridW/(strings-1);
+  var stepY = gridH/frets;
+
+  var accent = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+  var line = getComputedStyle(document.body).getPropertyValue('--diagram-line').trim();
+  var text = getComputedStyle(document.body).getPropertyValue('--text').trim();
+
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 1;
+  ctx.fillStyle = line;
+  ctx.fillRect(sx-1, sy-2, gridW+2, 3);
+  for(var f=1; f<=frets; f++){
+    var y = sy + f*stepY;
+    ctx.beginPath(); ctx.moveTo(sx, y); ctx.lineTo(sx+gridW, y); ctx.stroke();
+  }
+  for(var s=0; s<strings; s++){
+    var x = sx + s*stepX;
+    ctx.beginPath(); ctx.moveTo(x, sy); ctx.lineTo(x, sy+gridH); ctx.stroke();
+  }
+
+  if(baseFret > 1){
+    ctx.fillStyle = text;
+    ctx.font = '600 11px "Space Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(baseFret + 'fr', 2, sy + 11);
+  }
+
+  ctx.font = '600 13px "Space Mono", monospace';
+  ctx.textAlign = 'center';
+  for(var i=0;i<6;i++){
+    var xi = sx + i*stepX;
+    var c = chars[i];
+    if(c === 'x'){
+      ctx.fillStyle = text;
+      ctx.fillText('\u00d7', xi, sy-6);
+    } else if(c === '0'){
+      ctx.strokeStyle = text;
+      ctx.beginPath(); ctx.arc(xi, sy-10, 5, 0, Math.PI*2); ctx.stroke();
+    } else {
+      var fret = parseInt(c,10);
+      var rel = fret - baseFret + 1;
+      var y2 = sy + (rel-0.5)*stepY;
+      ctx.fillStyle = accent;
+      ctx.beginPath(); ctx.arc(xi, y2, 9, 0, Math.PI*2); ctx.fill();
+    }
+  }
+}
+
+/* ---------------------------------------------------------
+   APP
+--------------------------------------------------------- */
+var state = { mode: 'lofi', tuning: 'standard', key: 0, keyMode: 'major', capoOn: true, audioReady: false };
+var NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+function el(tag, cls, html){
+  var e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(html !== undefined) e.innerHTML = html;
+  return e;
+}
+function computeCapo(){ return state.capoOn ? state.key : 0; }
+var FLATS = {'Db':1,'Eb':3,'Gb':6,'Ab':8,'Bb':10};
+function noteIndex(note){
+  var i = NOTES.indexOf(note);
+  if(i>=0) return i;
+  if(FLATS.hasOwnProperty(note)) return FLATS[note];
+  return 0;
+}
+function transposeNote(note, semis){
+  var idx = (noteIndex(note) + semis + 1200) % 12;
+  return NOTES[idx];
+}
+function transposeChordName(name, semis){
+  if(!semis) return name;
+  var m = name.match(/^([A-G][#b]?)([\s\S]*)$/);
+  if(!m) return name;
+  var newRoot = transposeNote(m[1], semis);
+  var rest = m[2];
+  var slash = rest.match(/^([\s\S]*)\/([A-G][#b]?)$/);
+  if(slash) return newRoot + slash[1] + '/' + transposeNote(slash[2], semis);
+  return newRoot + rest;
+}
+
+var MAJOR_DEGREE_NUM = {0:'I',1:'bII',2:'II',3:'bIII',4:'III',5:'IV',6:'bV',7:'V',8:'bVI',9:'VI',10:'bVII',11:'VII'};
+var MINOR_DEGREE_NUM = {0:'I',1:'bII',2:'II',3:'III',4:'#III',5:'IV',6:'bV',7:'V',8:'VI',9:'#VI',10:'VII',11:'#VII'};
+function chordQualityFromSuffix(rest){
+  if(/^dim7|^°/.test(rest)) return 'dim';
+  if(/^m7b5/.test(rest)) return 'halfdim';
+  if(/^m(?!aj)/.test(rest)) return 'minor';
+  if(/^aug|\+/.test(rest)) return 'aug';
+  return 'major';
+}
+function romanNumeral(name){
+  var sym = name.replace(/\s*\([^)]*\)\s*/g,'');
+  if(sym.indexOf('/') !== -1) sym = sym.split('/')[0];
+  var m = sym.match(/^([A-G])(#|b)?([\s\S]*)$/);
+  if(!m) return '';
+  var root = noteIndex(m[1] + (m[2]||''));
+  var deg = ((root - state.key) % 12 + 12) % 12;
+  var quality = chordQualityFromSuffix(m[3]||'');
+  var table = state.keyMode === 'minor' ? MINOR_DEGREE_NUM : MAJOR_DEGREE_NUM;
+  var base = table[deg];
+  if(quality==='minor') return base.toLowerCase();
+  if(quality==='dim') return base.toLowerCase()+'°';
+  if(quality==='halfdim') return base.toLowerCase()+'ø';
+  if(quality==='aug') return base+'+';
+  return base;
+}
+function displayChordName(chd){
+  var shift = computeCapo();
+  if(shift === 0) return chd.name;
+  return transposeChordName(chd.name, shift);
+}
+
+function currentChordSet(){
+  if(state.mode === 'lofi') return TUNINGS[state.tuning].chords;
+  if(state.mode === 'citypop') return CITYPOP.chords;
+  if(state.mode === 'triphop') return TRIPHOP.chords;
+  if(state.mode === 'bigbeat') return BIGBEAT.chords;
+  return LENKER.chords;
+}
+function currentFreqs(){
+  if(state.mode === 'lofi') return TUNINGS[state.tuning].freq;
+  if(state.mode === 'citypop') return CITYPOP.freq;
+  if(state.mode === 'triphop') return TRIPHOP.freq;
+  if(state.mode === 'bigbeat') return BIGBEAT.freq;
+  return LENKER.freq;
+}
+
+function render(){
+  var app = document.getElementById('app');
+  app.innerHTML = '';
+  var m = MODES[state.mode];
+  document.body.className = 'mode-' + state.mode;
+
+  if(!state.audioReady){
+    var soundBar = el('button','sound-bar','\ud83d\udd0a  Tap to enable sound');
+    soundBar.onclick = function(){
+      ensureAudio().then(function(){ state.audioReady = true; render(); })
+        .catch(function(err){ console.error('Could not enable audio:', err); });
+    };
+    app.appendChild(soundBar);
+  }
+
+  var nav = el('div','tabbar');
+  ['lofi','citypop','triphop','bigbeat','lenker'].forEach(function(key){
+    var t = el('button','tab' + (state.mode===key?' active':''), MODES[key].label);
+    t.onclick = function(){ state.mode = key; render(); };
+    nav.appendChild(t);
+  });
+  app.appendChild(nav);
+
+  var header = el('div','hero');
+  header.appendChild(el('div','hero-fx'));
+  var hin = el('div','hero-inner');
+  hin.appendChild(el('div','eyebrow','Style Chords'));
+  hin.appendChild(el('h1','title', m.label));
+  hin.appendChild(el('div','sub', m.sub));
+  hin.appendChild(el('p','intro', m.intro));
+  header.appendChild(hin);
+  app.appendChild(header);
+
+  if(state.mode === 'lofi'){
+    var tuneSec = el('div','section tuning-section');
+    var th = el('div','section-title-row');
+    th.appendChild(el('h2','section-title','Tuning'));
+    tuneSec.appendChild(th);
+
+    var pillRow = el('div','pill-row');
+    TUNING_ORDER.forEach(function(key){
+      var tObj = TUNINGS[key];
+      var pill = el('button','pill' + (state.tuning===key?' active':''));
+      pill.innerHTML = '<span class="pill-name">'+tObj.label+'</span><span class="pill-notes">'+tObj.notes+'</span>';
+      pill.onclick = function(k){ return function(){ state.tuning = k; render(); }; }(key);
+      pillRow.appendChild(pill);
+    });
+    tuneSec.appendChild(pillRow);
+    tuneSec.appendChild(el('p','section-note tuning-blurb', TUNINGS[state.tuning].blurb));
+    app.appendChild(tuneSec);
+  }
+
+  var keySec = el('div','section');
+  var kh = el('div','section-title-row');
+  kh.appendChild(svgCapo());
+  kh.appendChild(el('h2','section-title','Key'));
+  keySec.appendChild(kh);
+  var capoNote = state.mode === 'lofi'
+    ? "This vocabulary is written for the key of C. Pick a different key and every chord name and sound below transposes to match — the shapes are the same, just capo'd."
+    : state.mode === 'citypop'
+    ? "This vocabulary is written for the key of C. Pick a different key and every chord name and sound below transposes to match — city pop parts are usually played capo-free, so treat the suggested fret as a reference rather than a rule."
+    : state.mode === 'triphop'
+    ? "This vocabulary is written for the key of C. Pick a different key and every chord name and sound below transposes to match — handy since these tracks are often built around a fixed sample pitch rather than a singable key."
+    : state.mode === 'bigbeat'
+    ? "This vocabulary is written for the key of C. Pick a different key and every chord name and sound below transposes to match — a capo just moves the whole riff without changing your fretting hand."
+    : "This vocabulary is written for the key of C. Pick a different key and every chord name and sound below transposes to match — this is exactly how \"Change\" works, capo 3 with familiar open shapes.";
+  keySec.appendChild(el('p','section-note', capoNote));
+
+  var keyRow = el('div','capo-row');
+  var keyWrap = el('div','field');
+  keyWrap.appendChild(el('label','field-label','Play in the key of'));
+  var keySel = el('select','field-select');
+  NOTES.forEach(function(n,i){
+    var o = el('option', null, n); o.value = i;
+    if(i===state.key) o.selected = true;
+    keySel.appendChild(o);
+  });
+  keySel.onchange = function(){ state.key = parseInt(this.value,10); render(); };
+  keyWrap.appendChild(keySel);
+  keyRow.appendChild(keyWrap);
+  keySec.appendChild(keyRow);
+
+  var capoFret = state.key;
+  var result = el('div','capo-result');
+  if(capoFret === 0){
+    result.innerHTML = '<span class="capo-big">No capo needed</span><span class="capo-detail">These shapes already sound in C — their natural key.</span>';
+  } else if (capoFret > 9){
+    result.innerHTML = '<span class="capo-big">Capo fret ' + capoFret + '</span><span class="capo-detail">That\'s high up the neck — consider a lower octave voicing instead.</span>';
+  } else {
+    result.innerHTML = '<span class="capo-big">Capo fret ' + capoFret + '</span><span class="capo-detail">Put a capo on fret ' + capoFret + ' and play these exact shapes to sound in ' + NOTES[state.key] + '.</span>';
+  }
+  keySec.appendChild(result);
+
+  var toggleRow = el('div','toggle-row');
+  var toggleText = el('div','toggle-text');
+  toggleText.appendChild(el('div','toggle-label','Apply capo to chords below'));
+  toggleText.appendChild(el('div','toggle-sub', state.capoOn
+    ? 'On \u2014 explore how these open shapes sound capo\u2019d into ' + NOTES[state.key] + '.'
+    : 'Off \u2014 showing your familiar open shapes as-is, no capo applied.'));
+  toggleRow.appendChild(toggleText);
+  var toggleBtn = el('button','switch' + (state.capoOn ? ' on' : ''));
+  toggleBtn.appendChild(el('span','switch-knob'));
+  toggleBtn.onclick = function(){ state.capoOn = !state.capoOn; render(); };
+  toggleRow.appendChild(toggleBtn);
+  keySec.appendChild(toggleRow);
+
+  var modeRow = el('div','field');
+  modeRow.appendChild(el('label','field-label','Treat key as'));
+  var modeSeg = el('div','mode-seg');
+  ['major','minor'].forEach(function(m){
+    var b = el('button','mode-btn' + (state.keyMode===m ? ' active' : ''), m.charAt(0).toUpperCase()+m.slice(1));
+    b.onclick = function(){ state.keyMode = m; render(); };
+    modeSeg.appendChild(b);
+  });
+  modeRow.appendChild(modeSeg);
+  keySec.appendChild(modeRow);
+  app.appendChild(keySec);
+
+  var chordSec = el('div','section');
+  chordSec.appendChild(el('h2','section-title','Chord Vocabulary'));
+  var vocabNote = 'Tap a card to hear it. Learn these as a set, not one at a time.';
+  if(state.key !== 0 && state.capoOn){
+    vocabNote = 'Shown capo\u2019d into ' + NOTES[state.key] + ' ' + state.keyMode + ' (capo ' + state.key + ') — names and playback below reflect the actual sounding pitch.';
+  } else if(state.key !== 0 && !state.capoOn){
+    vocabNote = 'Capo is off — these are your familiar open shapes, unaffected by the ' + NOTES[state.key] + ' key selected above.';
+  }
+  chordSec.appendChild(el('p','section-note', vocabNote));
+
+  var grid = el('div','grid');
+  var chords = currentChordSet();
+  var freqs = currentFreqs();
+  chords.forEach(function(chd){
+    var card = el('div','card');
+    var top = el('div','card-top');
+    var nameWrap = el('div','card-name-wrap');
+    var dispName = displayChordName(chd);
+    nameWrap.appendChild(el('div','card-name', dispName));
+    var rn = romanNumeral(dispName);
+    if(rn) nameWrap.appendChild(el('div','card-roman', rn));
+    top.appendChild(nameWrap);
+    var playBtn = el('button','play-btn','\u25b6');
+    playBtn.onclick = function(e){ e.stopPropagation(); playChord(chd.frets, freqs); };
+    top.appendChild(playBtn);
+    card.appendChild(top);
+
+    var canvas = document.createElement('canvas');
+    canvas.className = 'diagram';
+    canvas.style.width = '100%'; canvas.style.height = '190px';
+    card.appendChild(canvas);
+    card.appendChild(el('div','card-note', chd.note));
+    card.onclick = function(frets){ return function(){ playChord(frets, freqs); }; }(chd.frets);
+    grid.appendChild(card);
+    setTimeout(function(cv, frets){ return function(){ drawDiagram(cv, frets); }; }(canvas, chd.frets), 0);
+  });
+  chordSec.appendChild(grid);
+  app.appendChild(chordSec);
+
+  /* ---- inversions ---- */
+  var invSec = el('div','section');
+  invSec.appendChild(el('h2','section-title','Chord Inversions'));
+  var invNote = state.mode === 'lofi'
+    ? "Slash chords — a different chord tone in the bass instead of the root. This is how fingerstyle players like Lenker and mk.gee get a bass line that moves on its own underneath a held chord shape. Shown in standard tuning."
+    : state.mode === 'citypop'
+    ? "The bass line is half the arrangement in this style. These slash chords keep the same chord above while the root walks — the trick behind every smooth turnaround."
+    : state.mode === 'triphop'
+    ? "A moving bass line under a static chord is how a lot of these tracks get their sense of drift — the chord above barely changes while the bass walks underneath it."
+    : state.mode === 'bigbeat'
+    ? "Less central here than in the smoother styles, but still useful for the rare moment a riff eases up — a walking bass line between two power chords."
+    : "This is the entire engine behind \"Change\" — a G shape and a D shape, each with a different bass note underneath. Two chords, one trick, a whole song.";
+  invSec.appendChild(el('p','section-note', invNote));
+  var invGrid = el('div','grid');
+  var invChords = state.mode === 'lofi' ? LOFI_INVERSIONS
+    : state.mode === 'citypop' ? CITYPOP_INVERSIONS
+    : state.mode === 'triphop' ? TRIPHOP_INVERSIONS
+    : state.mode === 'bigbeat' ? BIGBEAT_INVERSIONS
+    : LENKER_INVERSIONS;
+  var invFreqs = TUNINGS.standard.freq;
+  invChords.forEach(function(chd){
+    var card = el('div','card');
+    var top = el('div','card-top');
+    var nameWrap = el('div','card-name-wrap');
+    var dispName = displayChordName(chd);
+    nameWrap.appendChild(el('div','card-name', dispName));
+    var rn = romanNumeral(dispName);
+    if(rn) nameWrap.appendChild(el('div','card-roman', rn));
+    top.appendChild(nameWrap);
+    var playBtn = el('button','play-btn','\u25b6');
+    playBtn.onclick = function(e){ e.stopPropagation(); playChord(chd.frets, invFreqs); };
+    top.appendChild(playBtn);
+    card.appendChild(top);
+    var canvas = document.createElement('canvas');
+    canvas.className = 'diagram';
+    canvas.style.width = '100%'; canvas.style.height = '190px';
+    card.appendChild(canvas);
+    card.appendChild(el('div','card-note', chd.note));
+    card.onclick = function(frets){ return function(){ playChord(frets, invFreqs); }; }(chd.frets);
+    invGrid.appendChild(card);
+    setTimeout(function(cv, frets){ return function(){ drawDiagram(cv, frets); }; }(canvas, chd.frets), 0);
+  });
+  invSec.appendChild(invGrid);
+  app.appendChild(invSec);
+
+  /* ---- jazz & fusion voicings (city pop only) ---- */
+  if(state.mode === 'citypop'){
+    var jazzSec = el('div','section');
+    jazzSec.appendChild(el('h2','section-title','Jazz & Fusion Voicings'));
+    jazzSec.appendChild(el('p','section-note','Denser, extended, and altered chords — the vocabulary that separates city pop and fusion guitar from straightforward pop chords. Four of these six are pulled directly from a verified Plastic Love chord chart.'));
+    var jazzGrid = el('div','grid');
+    JAZZ_FUSION.forEach(function(chd){
+      var card = el('div','card');
+      var top = el('div','card-top');
+      var nameWrap = el('div','card-name-wrap');
+    var dispName = displayChordName(chd);
+    nameWrap.appendChild(el('div','card-name', dispName));
+    var rn = romanNumeral(dispName);
+    if(rn) nameWrap.appendChild(el('div','card-roman', rn));
+    top.appendChild(nameWrap);
+      var playBtn = el('button','play-btn','\u25b6');
+      playBtn.onclick = function(e){ e.stopPropagation(); playChord(chd.frets, CITYPOP.freq); };
+      top.appendChild(playBtn);
+      card.appendChild(top);
+      var canvas = document.createElement('canvas');
+      canvas.className = 'diagram';
+      canvas.style.width = '100%'; canvas.style.height = '190px';
+      card.appendChild(canvas);
+      card.appendChild(el('div','card-note', chd.note));
+      card.onclick = function(frets){ return function(){ playChord(frets, CITYPOP.freq); }; }(chd.frets);
+      jazzGrid.appendChild(card);
+      setTimeout(function(cv, frets){ return function(){ drawDiagram(cv, frets); }; }(canvas, chd.frets), 0);
+    });
+    jazzSec.appendChild(jazzGrid);
+    app.appendChild(jazzSec);
+  }
+
+  var songSec = el('div','section songs-section');
+  songSec.appendChild(el('h2','section-title','Real Songs, Real Chords'));
+  songSec.appendChild(el('p','section-note','Verified against multiple independent chord transcriptions where possible.'));
+  m.songs.forEach(function(s){
+    var card = el('div','song-card');
+    var top = el('div','song-top');
+    top.appendChild(el('div','song-artist', s.artist));
+    top.appendChild(el('div','song-tag', s.tag));
+    card.appendChild(top);
+    card.appendChild(el('div','song-title', s.title));
+    card.appendChild(el('div','song-detail', s.detail));
+    songSec.appendChild(card);
+  });
+  songSec.appendChild(el('p','song-caveat', m.songNote));
+  app.appendChild(songSec);
+
+  if(m.listening && m.listening.length){
+    var listenSec = el('div','section listen-section');
+    listenSec.appendChild(el('h2','section-title','Further Listening'));
+    listenSec.appendChild(el('p','section-note','More tracks in this style to train your ear on — pull these up on whatever you stream with.'));
+    var listenGrid = el('div','listen-grid');
+    m.listening.forEach(function(s){
+      var row = el('div','listen-item');
+      row.appendChild(el('span','listen-artist', s.artist));
+      row.appendChild(el('span','listen-title', s.title));
+      listenGrid.appendChild(row);
+    });
+    listenSec.appendChild(listenGrid);
+    app.appendChild(listenSec);
+  }
+
+  app.appendChild(el('div','footer','Tap any chord to hear it \u00b7 Rotate for a wider grid'));
+}
+
+function svgCapo(){
+  var wrap = document.createElement('div');
+  wrap.className = 'icon-badge';
+  wrap.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/><line x1="8" y1="4" x2="8" y2="20"/><line x1="16" y1="4" x2="16" y2="20"/><rect x="3" y="6" width="18" height="4" rx="1.5" fill="currentColor" stroke="none"/></svg>';
+  return wrap;
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  render();
+  window.addEventListener('resize', function(){
+    var canvases = document.querySelectorAll('.diagram');
+    var chords = currentChordSet();
+    canvases.forEach(function(cv, idx){ if(chords[idx]) drawDiagram(cv, chords[idx].frets); });
+  });
+});
+})();
+</script>
+<style>
+:root{
+  --lofi-bg: #241b24;
+  --lofi-surface: #2f2530;
+  --lofi-accent: #e8a672;
+  --lofi-accent2: #c98a9c;
+  --lofi-text: #f3ece7;
+  --lofi-muted: #a9979f;
+  --lofi-line: #58485a;
+
+  --city-bg: #16233f;
+  --city-surface: #1f3055;
+  --city-accent: #ff9db4;
+  --city-accent2: #ffd166;
+  --city-text: #fdf6ec;
+  --city-muted: #9fb0d0;
+  --city-line: #3c5385;
+
+  --triphop-bg: #1c1a1f;
+  --triphop-surface: #2a2730;
+  --triphop-accent: #c23b3b;
+  --triphop-accent2: #7c8a99;
+  --triphop-text: #ece7e2;
+  --triphop-muted: #948d95;
+  --triphop-line: #47414c;
+
+  --bigbeat-bg: #101418;
+  --bigbeat-surface: #1a2530;
+  --bigbeat-accent: #d4ff3f;
+  --bigbeat-accent2: #ff5f2e;
+  --bigbeat-text: #eef4f2;
+  --bigbeat-muted: #7f9099;
+  --bigbeat-line: #2f3d47;
+
+  --lenker-bg: #211c16;
+  --lenker-surface: #2e271e;
+  --lenker-accent: #c9a66b;
+  --lenker-accent2: #7d8c6a;
+  --lenker-text: #f2ead9;
+  --lenker-muted: #a89a80;
+  --lenker-line: #4a4030;
+}
+*{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html,body{ margin:0; padding:0; }
+body{
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+body.mode-lofi{ --bg: var(--lofi-bg); --surface: var(--lofi-surface); --accent: var(--lofi-accent); --accent2: var(--lofi-accent2); --text: var(--lofi-text); --muted: var(--lofi-muted); --diagram-line: var(--lofi-line); }
+body.mode-citypop{ --bg: var(--city-bg); --surface: var(--city-surface); --accent: var(--city-accent); --accent2: var(--city-accent2); --text: var(--city-text); --muted: var(--city-muted); --diagram-line: var(--city-line); }
+body.mode-triphop{ --bg: var(--triphop-bg); --surface: var(--triphop-surface); --accent: var(--triphop-accent); --accent2: var(--triphop-accent2); --text: var(--triphop-text); --muted: var(--triphop-muted); --diagram-line: var(--triphop-line); }
+body.mode-bigbeat{ --bg: var(--bigbeat-bg); --surface: var(--bigbeat-surface); --accent: var(--bigbeat-accent); --accent2: var(--bigbeat-accent2); --text: var(--bigbeat-text); --muted: var(--bigbeat-muted); --diagram-line: var(--bigbeat-line); }
+body.mode-lenker{ --bg: var(--lenker-bg); --surface: var(--lenker-surface); --accent: var(--lenker-accent); --accent2: var(--lenker-accent2); --text: var(--lenker-text); --muted: var(--lenker-muted); --diagram-line: var(--lenker-line); }
+
+.tabbar{ position: sticky; top:44px; z-index: 10; display:flex; gap:2px; background: var(--bg); padding: 10px 10px 0 10px; }
+.sound-bar{ display:block; width:100%; border:none; background: var(--accent); color: var(--bg); font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:14px; padding:13px; text-align:center; cursor:pointer; }
+.tab{ flex:1; padding: 12px 8px; border:none; border-radius: 10px 10px 0 0; background: var(--surface); color: var(--muted); font-family:'Space Mono', monospace; font-size: 13px; letter-spacing: 0.03em; text-transform: uppercase; cursor: pointer; }
+.tab.active{ color: var(--text); background: var(--surface); box-shadow: inset 0 2px 0 var(--accent); }
+
+.hero{ position:relative; overflow:hidden; padding: 28px 20px 26px; background: var(--surface); }
+.mode-citypop .hero{ background: linear-gradient(180deg, var(--city-accent) 0%, #ffb37b 30%, var(--city-surface) 78%); }
+.mode-lofi .hero{ background: radial-gradient(120% 100% at 20% 0%, var(--lofi-surface) 0%, var(--lofi-bg) 70%); }
+.mode-triphop .hero{ background: radial-gradient(130% 110% at 85% 0%, var(--triphop-surface) 0%, var(--triphop-bg) 72%); }
+.mode-bigbeat .hero{ background: linear-gradient(115deg, var(--bigbeat-bg) 0%, var(--bigbeat-surface) 55%, var(--bigbeat-bg) 100%); }
+.mode-lenker .hero{ background: radial-gradient(110% 90% at 15% 100%, var(--lenker-surface) 0%, var(--lenker-bg) 68%); }
+.hero-fx{ position:absolute; inset:0; pointer-events:none; opacity:0.5; }
+.mode-lofi .hero-fx{ background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 3px); }
+.mode-citypop .hero-fx{ background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.15) 0px, transparent 1px, transparent 22px); mask-image: linear-gradient(180deg, transparent 0%, black 55%, transparent 100%); }
+.mode-triphop .hero-fx{ opacity:0.35; background-image: repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px); }
+.mode-bigbeat .hero-fx{ opacity:0.6; background-image: repeating-linear-gradient(45deg, rgba(212,255,63,0.07) 0px, rgba(212,255,63,0.07) 2px, transparent 2px, transparent 14px); }
+.mode-lenker .hero-fx{ opacity:0.4; background-image: repeating-linear-gradient(90deg, rgba(201,166,107,0.06) 0px, rgba(201,166,107,0.06) 1px, transparent 1px, transparent 6px); }
+.hero-inner{ position:relative; z-index:1; }
+.eyebrow{ font-family:'Space Mono', monospace; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color: var(--muted); margin-bottom:6px; }
+.mode-citypop .eyebrow{ color: rgba(22,35,63,0.65); }
+.title{ font-family:'Fraunces', serif; font-weight: 600; font-size: 34px; margin: 0 0 4px 0; color: var(--text); }
+.mode-citypop .title{ font-style: italic; color:#16233f; }
+.mode-bigbeat .title{ text-transform: uppercase; letter-spacing: 0.01em; }
+.sub{ font-family:'Space Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.mode-citypop .sub{ color: rgba(22,35,63,0.7); }
+.intro{ font-size: 14px; line-height:1.55; color: var(--text); max-width: 62ch; margin:0; }
+.mode-citypop .intro{ color:#16233f; }
+
+.section{ padding: 22px 18px; border-top: 1px solid rgba(255,255,255,0.06); }
+.section-title-row{ display:flex; align-items:center; gap:8px; }
+.section-title{ font-family:'Fraunces', serif; font-weight:600; font-size:20px; margin: 0 0 6px 0; }
+.section-note{ font-size: 13.5px; line-height:1.5; color: var(--muted); margin: 0 0 16px 0; }
+.icon-badge{ width:26px; height:26px; border-radius:8px; background: var(--accent); color: var(--bg); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-bottom:6px; }
+
+.pill-row{ display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:12px; -webkit-overflow-scrolling:touch; }
+.pill-row::-webkit-scrollbar{ display:none; }
+.pill{ flex: 0 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:10px 14px; border-radius:12px; border:1px solid var(--diagram-line); background: var(--surface); cursor:pointer; }
+.pill.active{ border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.pill-name{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:13.5px; color: var(--text); }
+.pill-notes{ font-family:'Space Mono', monospace; font-size:10px; color: var(--muted); letter-spacing:0.03em; }
+.tuning-blurb{ background: var(--surface); border:1px solid var(--diagram-line); border-radius:12px; padding:12px 14px; margin:0; }
+
+.capo-row{ display:flex; gap:10px; margin-bottom:14px; }
+.field{ flex:1; display:flex; flex-direction:column; gap:6px; }
+.field-label{ font-family:'Space Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color: var(--muted); }
+.field-select{ appearance:none; -webkit-appearance:none; background: var(--surface); color: var(--text); border: 1px solid var(--diagram-line); border-radius: 10px; padding: 12px 10px; font-family:'Space Grotesk', sans-serif; font-weight:600; font-size: 15px; }
+.mode-seg{ display:flex; gap:6px; margin-top:6px; }
+.mode-btn{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--diagram-line); background: var(--surface); color: var(--muted); font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px; cursor:pointer; }
+.mode-btn.active{ background: var(--surface); color: var(--text); border-color: var(--accent); box-shadow: inset 0 2px 0 var(--accent); }
+.capo-result{ background: var(--surface); border-radius: 14px; padding: 16px 16px; display:flex; flex-direction:column; gap:4px; border: 1px solid var(--diagram-line); }
+.capo-big{ font-family:'Fraunces', serif; font-weight:600; font-size:22px; color: var(--accent); }
+.capo-detail{ font-size: 13px; color: var(--muted); line-height:1.4; }
+
+.toggle-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:12px; background: var(--surface); border:1px solid var(--diagram-line); border-radius:14px; padding:14px 16px; }
+.toggle-text{ flex:1; }
+.toggle-label{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:14px; color: var(--text); }
+.toggle-sub{ font-size:12px; color: var(--muted); margin-top:3px; line-height:1.4; }
+.switch{ flex-shrink:0; width:46px; height:26px; border-radius:20px; border:1px solid var(--diagram-line); background: var(--bg); position:relative; cursor:pointer; padding:0; transition: background 0.15s ease; }
+.switch.on{ background: var(--accent); border-color: var(--accent); }
+.switch-knob{ position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background: var(--text); transition: transform 0.15s ease; }
+.switch.on .switch-knob{ transform: translateX(20px); background: var(--bg); }
+
+.grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.card{ background: var(--surface); border: 1px solid var(--diagram-line); border-radius: 14px; padding: 12px; cursor: pointer; transition: transform 0.12s ease; }
+.card:active{ transform: scale(0.97); }
+.card-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.card-name{ font-family:'Fraunces', serif; font-weight:600; font-size:15.5px; line-height:1.25; word-break:break-word; padding-right:6px; }
+.card-name-wrap{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; padding-right:6px; }
+.card-name-wrap .card-name{ padding-right:0; }
+.card-roman{ font-family:'Space Mono', monospace; font-size:11px; font-weight:700; color: var(--accent); border:1px solid var(--accent); border-radius:20px; padding:1px 7px; line-height:1.5; flex-shrink:0; }
+.play-btn{ width: 30px; height:30px; border-radius:50%; border:none; background: var(--accent); color: var(--bg); font-size: 12px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.card-note{ font-size: 11.5px; line-height:1.4; color: var(--muted); margin-top:6px; min-height: 44px; }
+
+.song-card{ background: var(--surface); border:1px solid var(--diagram-line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+.song-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+.song-artist{ font-family:'Space Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--muted); }
+.song-tag{ font-family:'Space Mono', monospace; font-size:10px; color: var(--accent); border:1px solid var(--accent); border-radius:20px; padding:2px 8px; }
+.song-title{ font-family:'Fraunces', serif; font-style:italic; font-weight:600; font-size:17px; margin: 2px 0 6px 0; }
+.song-detail{ font-family:'Space Mono', monospace; font-size:12px; line-height:1.6; color: var(--text); }
+.song-caveat{ font-size:12.5px; line-height:1.5; color: var(--muted); margin: 14px 2px 0 2px; font-style: italic; }
+
+.listen-grid{ display:grid; grid-template-columns: 1fr; gap:0; border-top:1px solid var(--diagram-line); }
+.listen-item{ display:flex; align-items:baseline; gap:10px; padding:10px 2px; border-bottom:1px solid var(--diagram-line); }
+.listen-artist{ font-family:'Space Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color: var(--muted); flex-shrink:0; min-width: 38%; }
+.listen-title{ font-family:'Fraunces', serif; font-size:15px; color: var(--text); }
+@media (min-width: 560px){ .listen-grid{ grid-template-columns: 1fr 1fr; column-gap: 24px; } }
+
+.footer{ text-align:center; padding: 20px; font-family:'Space Mono', monospace; font-size:11px; color: var(--muted); }
+
+@media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr 1fr; } }
+</style>
+</body>
+</html>
